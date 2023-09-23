@@ -1,0 +1,6 @@
+insert into Students ('StudentId', 'FirstName', 'LastName')
+values ('2342', 'Тест', 'Тестовичич'); 
+
+select * from Students --where StudentId = '251ce3cb-9540-446b-9f59-6f5c33d1f102';
+
+delete from Students where StudentId in ('251ce3cb-9540-446b-9f59-6f5c33d1f102', 'df7f7921-d60e-4201-bc7e-9ea372e38a21');

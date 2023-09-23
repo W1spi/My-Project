@@ -1,0 +1,109 @@
+﻿@model RegisterViewModel
+
+@{
+    ViewData["Title"] = "Register (View)";
+}
+
+<h1 class="mb-5 text-center font-weight-normal"></h1>
+
+<div class="container pt-3 bg-light bg-opacity-25">
+    <div class="d-flex justify-content-center">
+        <form asp-controller="Identity" asp-action="Register" id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="mt-5">
+            <h2 class="mb-3 font-weight-normal">Create a new account</h2>
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+            <div class="mb-4">
+                <div>
+                    <label asp-for="FirstName" class="form-label">First Name</label>
+                    <div class="input-group">
+                        <div>
+                            <span class="input-group-text-icon">
+                                <i class="col-md-2 bi bi-person-fill"></i>
+                            </span>
+                        </div>
+                        <div class="col-md-10">
+                            <input asp-for="FirstName" class="form-control-border-field border-1" autocomplete="on" aria-required="true" placeholder="Enter your first name" />
+                            <span class="text-danger mb-3" asp-validation-for="FirstName"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <div>
+                    <label asp-for="Surname" class="form-label">Surname</label>
+                    <div class="input-group">
+                        <div>
+                            <span class="input-group-text-icon">
+                                <i class="col-md-2 bi bi-person-fill"></i>
+                            </span>
+                        </div>
+                        <div class="col-md-10">
+                            <input asp-for="Surname" class="form-control-border-field border-1" autocomplete="on" aria-required="true" placeholder="Enter your surname" />
+                            <span class="text-danger" asp-validation-for="Surname"></span>
+                        </div>
+                    </div>
+                </div>
+            </div> 
+
+            <div class="mb-4">
+                <div>
+                    <label asp-for="Email" class="form-label">Email</label>
+                    <div class="input-group">
+                        <div>
+                            <span class="input-group-text-icon">
+                                <i class="col-md-2 bi bi-envelope-fill"></i>
+                            </span>
+                        </div>
+                        <div class="col-md-10">
+                            <input asp-for="Email" class="form-control-border-field border-1" autocomplete="on" aria-required="true" placeholder="Enter your email" />
+                            <span class="text-danger" asp-validation-for="Email"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <div>
+                    <label asp-for="Password" class="form-label">Password</label>
+                    <div class="input-group">
+                        <div>
+                            <span class="input-group-text-icon">
+                                <i class="col-md-2 bi bi-file-lock-fill"></i>
+                            </span>
+                        </div>
+                        <div class="col-md-10">
+                            <input asp-for="Password" class="form-control-border-field border-1" autocomplete="new-password" aria-required="true" placeholder="Enter your password" />
+                            <span class="text-danger" asp-validation-for="Password"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <div>
+                    <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
+                    <div class="input-group">
+                        <div>
+                            <span class="input-group-text-icon">
+                                <i class="col-md-2 bi bi-file-lock-fill"></i>
+                            </span>
+                        </div>
+                        <div class="col-md-10">
+                            <input asp-for="ConfirmPassword" class="form-control-border-field border-1" autocomplete="new-password" aria-required="true" placeholder="Repeat the password" />
+                            <span class="text-danger" asp-validation-for="ConfirmPassword"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button id="registerSubmit" type="submit" class="w-50 btn btn-sx btn-info">Register</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

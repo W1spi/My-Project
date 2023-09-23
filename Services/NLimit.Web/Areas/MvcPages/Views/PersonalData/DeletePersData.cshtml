@@ -1,0 +1,44 @@
+﻿@using NLimit.Web.ClassServices
+@model PersonalAccountViewModel
+@{
+    ViewData["Title"] = "Delete Personal Data";
+    ViewData["ActivePage"] = ManageNavigationPages.PersonalData;
+}
+
+<h3>@ViewData["Title"]</h3>
+
+<div class="alert alert-warning" role="alert">
+    <p>
+        <strong>Deleting this data will permanently remove your account, and this cannot be recovered.</strong>
+    </p>
+</div>
+
+<div>
+    <form id="delete-user" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+        @if (Model.RequirePassword)
+        {
+            if (Model.ModelIsValid == ModelStates.InvalidPassword)
+            {
+                <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
+                    Введен некорректный пароль! Повторите попытку.
+                    <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
+                    </button>
+                </div>
+
+                Model.ModelIsValid = ModelStates.None;
+            }
+
+            <div class="mb-3">
+                <label asp-for="CurrentPassword" class="form-label"></label>
+                <input asp-for="CurrentPassword" class="form-control-color-info border-2" autocomplete="current-password" aria-required="true" placeholder="Please enter your password." />
+                <span asp-validation-for="CurrentPassword" class="text-danger"></span>
+            </div>
+        }
+        <button class="w-100 btn btn-lg btn-danger" type="submit">Delete data and close my account</button>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

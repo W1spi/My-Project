@@ -1,0 +1,116 @@
+﻿@using NLimit.Web.ClassServices
+@model PersonalAccountViewModel
+
+@{
+    ViewData["Title"] = "Manage Email";
+    ViewData["ActivePage"] = ManageNavigationPages.Email;
+}
+
+<!-- <h3 class="text-md-center font-weight-normal mb-3">ViewData["Title"]</h3> -->
+<!-- <partial name="_StatusMessage" for="StatusMessage" /> -->
+<div class="row">
+    <div class="col-md-6">
+        @{
+            if (Model.ModelIsValid == ModelStates.ValidNewEmail)
+            {
+                <div class="alert alert-success alert-dismissible fade show d-flex align-items-center" role="alert">
+                    Email успешно изменен!
+                    <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
+                    </button>
+                </div>
+
+                Model.ModelIsValid = ModelStates.None;
+            }
+            else if (Model.ModelIsValid == ModelStates.InvalidNewEmail)
+            {
+                <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
+                    Email не был изменен, проверьте корректность введенных данных!
+                    <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
+                    </button>
+                </div>
+
+                Model.ModelIsValid = ModelStates.None;
+            }
+            else if (Model.ModelIsValid == ModelStates.EmailsMatch)
+            {
+                <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
+                    Email не был изменен (введенный email совпадает с текущим).
+                    <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
+                    </button>
+                </div>
+
+                Model.ModelIsValid = ModelStates.None;
+            }
+            else if (Model.ModelIsValid == ModelStates.ConfirmationEmail)
+            {
+                <div class="alert alert-info alert-dismissible fade show d-flex align-items-center" role="alert">
+                    На ваш email отправлен запрос на подтверждение.
+                    <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
+                    </button>
+                </div>
+
+                Model.ModelIsValid = ModelStates.None;
+            }
+        }
+        <form asp-controller="PersonalData" asp-action="ChangeEmail" id="email-form" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+            @if (Model.IsEmailConfirmed)
+            {
+                <div class="mb-3">
+                    <div>
+                        <label asp-for="Email" class="form-label"></label>
+                        <div class="input-group">
+                            <div class="col-md-11">
+                                <input asp-for="Email" class="form-control" placeholder="Please enter your email." disabled />
+                            </div>
+                            <div class="input-group-append col-md-1">
+                                <span class="h-100 input-group-text text-success font-weight-bold">
+                                    <i class="bi bi-check2-square"></i>
+                                </span>
+                            </div>
+
+                            <!-- <div class="input-group-append col-md-1">
+                                <span class="h-100 input-group-text text-success font-weight-bold">✓</span>
+                            </div> -->
+
+                        </div>
+                    </div>
+                </div>
+
+                <!--<div class="mb-4">
+                    <div>
+                        <label asp-for="Email" class="form-label"></label>
+                        <div class="input-group">
+                            <div>
+                                <span class="input-group-text-icon text-success">
+                                    <i class="col-md-2 bi bi-check"></i>
+                                </span>
+                            </div>
+                            <div class="col-md-10">
+                                <input asp-for="Email" class="form-control-border-field border-1 disabled" autocomplete="on" aria-required="true" placeholder="First Name" disabled readonly/>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+            }
+            else
+            {
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" class="form-control-color-info" placeholder="Please enter your email." disabled />
+                    <button asp-action="ConfirmEmailChange" id="email-verification" type="submit" class="btn btn-link">Send verification email</button>
+                </div>
+            }
+            <div class="mb-3">
+                <label asp-for="NewEmail" class="form-label"></label>
+                <input asp-for="NewEmail" class="form-control-color-info" autocomplete="email" aria-required="true" placeholder="Please enter new email." />
+                <span asp-validation-for="NewEmail" class="text-danger"></span>
+            </div>
+            <button id="change-email-button" type="submit" class="w-100 btn btn-lg btn-info">Change email</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

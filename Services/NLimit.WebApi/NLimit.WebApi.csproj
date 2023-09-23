@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Highlight" Version="4.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.7" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Data\NLimit.Common.DataContext.SqlServer\NLimit.Common.DataContext.SqlServer.csproj" />
+    <ProjectReference Include="..\..\Data\NLimit.Common.EntitiesModels.SqlServer\NLimit.Common.EntitiesModels.SqlServer.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,30 @@
+﻿@using NLimit.Web.ClassServices
+@inject SignInManager<IdentityUser> signInManager
+
+@{
+    var hasExternalLogins = (await signInManager.GetExternalAuthenticationSchemesAsync()).Any();
+}
+
+<ul class="nav nav-pills flex-column">
+    <li class="nav-item">
+        <a class="nav-link @ManageNavigationPages.ProfileNavClass(ViewContext)" id="profile" asp-controller="PersonalData" asp-action="Profile" method="get">Profile</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @ManageNavigationPages.EmailNavClass(ViewContext)" id="email" asp-controller="PersonalData" asp-action="Email" method="get">Email</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @ManageNavigationPages.ChangePasswordNavClass(ViewContext)" id="change-password" asp-controller="PersonalData" asp-action="ChangePassword" method="get">Password</a>
+    </li>
+    @if (hasExternalLogins)
+    {
+        <li id="external-logins" class="nav-item">
+            <a id="external-login" class="nav-link @ManageNavigationPages.ExternalLoginsNavClass(ViewContext)" asp-controller="PersonalData" asp-action="" method="get">External logins</a>
+        </li>
+    }
+   <!-- <li class="nav-item">
+          <a class="nav-link ManageNavigationPages.TwoFactorAuthenticationNavClass(ViewContext)" id="two-factor" asp-controller="PersonalData" asp-action="" method="get">Two-factor authentication</a>
+    </li> -->
+    <li class="nav-item">
+        <a class="nav-link @ManageNavigationPages.PersonalDataNavClass(ViewContext)" id="personal-data" asp-controller="PersonalData" asp-action="PersData" method="get">Personal data</a>
+    </li>
+</ul>

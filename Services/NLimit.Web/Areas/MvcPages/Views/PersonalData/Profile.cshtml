@@ -1,0 +1,66 @@
+﻿@using NLimit.Web.ClassServices
+@model PersonalAccountViewModel
+
+@{
+    ViewData["Title"] = "Profile";
+    ViewData["ActivePage"] =  ManageNavigationPages.Profile;
+}
+
+<div class="row">
+    @if (Model.UpdatedSuccessfully)
+    {
+        <div class="alert alert-success alert-dismissible fade show d-flex align-items-center" role="alert">
+            Данные успешно обновлены!
+            <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
+            </button>
+        </div>
+
+        Model.UpdatedSuccessfully = false;
+    }
+    <div class="col-md-12">
+        <form asp-controller="PersonalData" asp-action="Profile" class="row g-4" id="profile-form" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+            <div class="col-md-4">
+                <label asp-for="FirstName" class="form-label"></label>
+                <input asp-for="FirstName" class="form-control-color-info border-2" placeholder="Please enter your first name." />
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="Surname" class="form-label"></label>
+                <input asp-for="Surname" class="form-control-color-info border-2" placeholder="Please enter your surname." />
+                <span asp-validation-for="Surname" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="Patronymic" class="form-label"></label>
+                <input asp-for="Patronymic" class="form-control-color-info border-2" placeholder="Please enter your patronymic." />
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="BirthDate" class="form-label"></label>
+                <input asp-for="BirthDate" type="date" class="form-control-color-info border-2" placeholder="Please enter your birth date." />
+                <span asp-validation-for="BirthDate" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="MobilePhone" class="form-label"></label>
+                <input asp-for="MobilePhone" class="form-control-color-info border-2" placeholder="Please enter your mobile phone." />
+                <span asp-validation-for="MobilePhone" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Address" class="form-label"></label>
+                <input asp-for="Address" class="form-control-color-info border-2" placeholder="Please enter your address." />
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+
+            <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-info">Save</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

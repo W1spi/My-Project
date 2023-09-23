@@ -1,0 +1,36 @@
+﻿
+
+@{
+    ViewData["Title"] = "Choosing a direction";
+}
+
+<div class="row justify-content-around">
+    <div class="col-6">
+        <div class="czoom">
+            <a asp-controller="Course" asp-action="AboutCourse" method="get">
+                <div class="czoom-title">
+                    <h1>
+                        <em>
+                            <strong>MATHEMATICS</strong>
+                        </em>
+                    </h1>
+                </div>
+                <div>
+                    <img src="~/pictures/backmath.jpg" class="img-fluid img-thumbnail opacity-100" />
+                </div>
+            </a>
+        </div>
+    </div>
+    <div class="col-6">
+        <div class="czoom">
+            <div class="czoom-title">
+                <h1>
+                    <strong>PROGRAMMING</strong>
+                </h1>
+            </div>
+            <div>
+                <img src="~/pictures/backprog.jpg" class="img-fluid img-thumbnail" />
+            </div>
+        </div>
+    </div>
+</div>

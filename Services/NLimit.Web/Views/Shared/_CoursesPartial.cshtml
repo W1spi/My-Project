@@ -1,0 +1,13 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using NLimit.Web.Data
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+<ul class="navbar-nav flex-grow-1">
+    @if (SignInManager.IsSignedIn(User) && (User.Identity?.IsAuthenticated ?? false))
+    {
+        <li class="nav-item input-group-text mx-2">
+            <a class="icon-link link-info bi bi-mortarboard-fill text-dark text-decoration-none" asp-controller="Home" asp-action="CourseSelection" method="get">Курсы</a>
+        </li>
+    }
+</ul>

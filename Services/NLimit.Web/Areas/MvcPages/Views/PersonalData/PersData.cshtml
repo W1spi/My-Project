@@ -1,0 +1,29 @@
+﻿@using NLimit.Web.ClassServices
+@model PersonalAccountViewModel
+@{
+    ViewData["Title"] = "Personal Data";
+    ViewData["ActivePage"] = ManageNavigationPages.PersonalData;
+}
+
+<h3>@ViewData["Title"]</h3>
+
+<div class="row">
+    <div class="col-md-6">
+        <p>Your account contains personal data that you have given us. This page allows you to download or delete that data.</p>
+        <p>
+            <strong>Deleting this data will permanently remove your account, and this cannot be recovered.</strong>
+        </p>
+        <div class="btn-group">
+            <form asp-controller="PersonalData" asp-action="DownloadPersData" id="download-data" method="post">
+                <button class="btn btn-info me-2" type="submit">Download</button>
+            </form>
+            <p>
+                <a asp-controller="PersonalData" asp-action="DeletePersData" id="delete" class="btn btn-danger">Delete</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
