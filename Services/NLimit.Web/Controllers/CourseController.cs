@@ -1,6 +1,10 @@
 ﻿using Data.NLimit.Common.DataContext.SqlServer;
+using Data.NLimit.Common.EntitiesModels.SqlServer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using NLimit.Web.Models;
+using System;
 
 namespace NLimit.Web.Controllers
 {
@@ -46,7 +50,7 @@ namespace NLimit.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Works()
+        public async Task<IActionResult> Works(string? userId)
         {
             bool signUser = signInManager.IsSignedIn(User);
 
@@ -55,7 +59,21 @@ namespace NLimit.Web.Controllers
                 return RedirectToAction("Login", "Identity");
             }
 
-            return View();
+            IEnumerable<AboutWorkViewModel> allWorks = await GetWorks(userId);
+
+            AboutWorkViewModel workModel = new();
+
+            if (!allWorks.IsNullOrEmpty())
+            {
+                workModel.WorkIsPresent = true;
+                workModel.AllWorks = allWorks;
+            }
+            else
+            {
+                workModel.WorkIsPresent = false;
+            }
+
+            return View(workModel);
         }
 
         [HttpGet]
@@ -95,6 +113,32 @@ namespace NLimit.Web.Controllers
             }
 
             return View();
+        }
+
+        private async Task<IEnumerable<AboutWorkViewModel>> GetWorks(string? userId)
+        {
+            string uri;
+
+            HttpClient client = clientFactory.CreateClient("NLimit.WebApi");
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                uri = "api/Works";
+            }
+            else
+            {
+                uri = $"api/Works?userId={userId}";
+            }
+
+            HttpRequestMessage request = new(
+                method: HttpMethod.Get,
+                requestUri: uri);
+
+            HttpResponseMessage response = await client.SendAsync(request);
+
+            IEnumerable<AboutWorkViewModel>? works = await response.Content.ReadFromJsonAsync<IEnumerable<AboutWorkViewModel>>();
+
+            return works;
         }
     }
 }

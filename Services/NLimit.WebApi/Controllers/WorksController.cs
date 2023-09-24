@@ -23,15 +23,15 @@ public class WorksController : ControllerBase
 
     [HttpGet]
     [ProducesResponseType(200, Type = typeof(IEnumerable<Work>))]
-    public async Task<IEnumerable<Work>> GetWorks(string? workId)
+    public async Task<IEnumerable<Work>> GetWorks(string? userId)
     {
-        if (string.IsNullOrEmpty(workId))
+        if (string.IsNullOrEmpty(userId))
         {
             return await repo.RetrieveAllAsync();
         }
 
         return (await repo.RetrieveAllAsync())
-            .Where(w => w.WorkId == workId);
+            .Where(w => w.UserId == userId);
     }
 
     [HttpGet("GetInfoAboutWork/{id}", Name = nameof(GetWorks))]

@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Data.NLimit.Common.EntitiesModels.SqlServer;
+using System.ComponentModel.DataAnnotations;
 
 namespace NLimit.Web.Models;
 
-public class AboutWorkViewModel
+public class AboutWorkViewModel : Work
 {
     public string WorkId { get; set; }
 
@@ -19,4 +20,12 @@ public class AboutWorkViewModel
     public string? Result { get; set; }
 
     public string? FeedbackTeacher { get; set; }
+
+    public string? UserId { get; set; }
+
+    public string? CourseId { get; set; }
+
+    public bool? WorkIsPresent { get; set; } // флаг присутствия заданий
+
+    public IEnumerable<AboutWorkViewModel>? AllWorks { get; set; } 
 }

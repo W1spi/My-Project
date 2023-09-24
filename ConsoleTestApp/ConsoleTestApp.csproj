@@ -7,15 +7,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Highlight" Version="4.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Data\NLimit.Common.DataContext.Sqlite\NLimit.Common.DataContext.Sqlite.csproj" />
-    <ProjectReference Include="..\Data\NLimit.Common.DataContext.SqlServer\NLimit.Common.DataContext.SqlServer.csproj" />
-    <ProjectReference Include="..\Data\NLimit.Common.EntitiesModels.Sqlite\NLimit.Common.EntitiesModels.Sqlite.csproj" />
-    <ProjectReference Include="..\Data\NLimit.Common.EntitiesModels.SqlServer\NLimit.Common.EntitiesModels.SqlServer.csproj" />
-  </ItemGroup>
-
 </Project>

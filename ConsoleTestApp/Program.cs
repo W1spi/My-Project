@@ -1,6 +1,12 @@
-﻿
+﻿using System;
 
-// var p = a - (a + v) * v;
-
-// Следующий код вычисляет то-то...
-
+namespace ConsoleTestApp
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("Hello, World!");
+        }
+    }
+}
