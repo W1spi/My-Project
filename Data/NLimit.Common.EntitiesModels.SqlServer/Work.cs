@@ -1,15 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Data.NLimit.Common.EntitiesModels.SqlServer;
 
 public class Work
 {
     //[Key, StringLength(50), Column(TypeName = "nvarchar (50)")]
-    public string WorkId { get; set; }
+    public string? WorkId { get; set; }
 
     //[Required, StringLength(100), Column(TypeName = "nvarchar (100)")]
-    public string WorkName { get; set; }
+    public string? WorkName { get; set; }
 
     //[StringLength(255), Column(TypeName = "nvarchar (255)")]
     public string? WorkDescription { get; set; }
@@ -18,7 +19,7 @@ public class Work
     public string? CreatedBy { get; set;}
 
     //[Required, StringLength(30), Column(TypeName = "nvarchar (30)")]
-    public string WorkStatus { get; set; }
+    public string? WorkStatus { get; set; }
 
     //[StringLength(50), Column(TypeName = "nvarchar (50)")]
     public string? Executor { get; set; }
@@ -36,9 +37,11 @@ public class Work
     public string? CourseId { get; set; }
 
     [ForeignKey("UserId")]
-    public virtual User User { get; set; }
+    [JsonIgnore]
+    public virtual User? User { get; set; }
 
     [ForeignKey("CourseId")]
-    public virtual Course Course { get; set; }
+    [JsonIgnore]
+    public virtual Course? Course { get; set; }
 
 }

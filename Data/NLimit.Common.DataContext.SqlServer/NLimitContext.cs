@@ -76,7 +76,7 @@ public class NLimitContext : DbContext
         /*modelBuilder.Entity<User>()
             .HasMany(u => u.Course)
             .WithMany(c => c.User)
-            .UsingEntity(w => w.ToTable("UsersCourses"));*/
+            .UsingEntity<UserCourse>();*/
 
         modelBuilder.Entity<UserCourse>()
             .Property(m => m.EnrollmentDate)

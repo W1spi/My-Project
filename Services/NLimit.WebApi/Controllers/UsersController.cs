@@ -4,6 +4,8 @@ using Data.NLimit.Common.EntitiesModels.SqlServer;
 using System.Net;
 using System.ComponentModel.DataAnnotations;
 using NLimit.WebApi.Repositoires.Users;
+using static NLimit.WebApi.Services.UserProcessingRequestService;
+using NLimit.WebApi.Services;
 
 namespace NLimit.WebApi.Controllers
 {
@@ -12,6 +14,7 @@ namespace NLimit.WebApi.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserRepository repo;
+
 
         public UsersController (IUserRepository repo)
         {
@@ -26,21 +29,20 @@ namespace NLimit.WebApi.Controllers
             {
                 return await repo.RetrieveAllAsync();
             }
-            else
-            {
-                return (await repo.RetrieveAllAsync())
+
+            return (await repo.RetrieveAllAsync())
                     .Where(s => s.FirstName == firstName);
-            }
         }
 
         [HttpGet("{id}", Name = nameof(GetUsers))]
         [ProducesResponseType(200, Type = typeof(User))]
-        [ProducesResponseType(404)]
+        [ProducesResponseType(404, Type = typeof(CustomServiceResponseNotFound))]
         public async Task<IActionResult> GetUser(string id)
         {
             User? user = await repo.RetrieveAsync(id);
 
-            if (user is null)
+            // блок с приведением UserId к нижнему/верхнему регистру
+            /*if (user is null)
             {
                 id = id.ToUpper();
                 user = await repo.RetrieveAsync(id);
@@ -67,53 +69,59 @@ namespace NLimit.WebApi.Controllers
             else
             {
                 return Ok(user);
+            }*/
+
+            if (user is null)
+            {
+                return NotFound(new CustomServiceResponseNotFound(StatusCodes.Status404NotFound, "Not Found"));
             }
+            return Ok(user);
         }
 
         [HttpPost(Name = nameof(GetUser))]
         [ProducesResponseType(201, Type = typeof(User))]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
+        [ProducesResponseType(400, Type = typeof(CustomServiceResponseBadRequest))]
         public async Task<IActionResult> CreateUser([FromBody] User user)
         {
             if (user is null)
             {
-                return BadRequest();
+                return BadRequest(new CustomServiceResponseBadRequest(StatusCodes.Status400BadRequest, "Bad Request"));
             }
+
+            user = ProcessingRequestParameters(user, UserOperationType.Create);
 
             User? addedUser = await repo.CreateAsync(user);
             if (addedUser is null)
             {
                 return BadRequest("Repository failed to create User.");
             }
-            else
-            {
-                return CreatedAtRoute(
-                    routeName: nameof(GetUsers),
-                    routeValues: new
-                    {
-                        id = addedUser.UserId.ToLower()
-                    },
-                    value: addedUser);
-            }
+
+            return CreatedAtRoute(
+                routeName: nameof(GetUsers),
+                routeValues: new
+                {
+                    id = addedUser.UserId.ToLower()
+                },
+                value: addedUser);
         }
 
         // PUT: api/Users/UpdateUser/[id] - полное обновление пользователя
         [HttpPut]
         [Route("UpdateUser/{id}")]
-        [ProducesResponseType(204,Type = typeof(User))]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
+        [ProducesResponseType(204, Type = typeof(User))]
+        [ProducesResponseType(400, Type = typeof(CustomServiceResponseBadRequest))]
+        [ProducesResponseType(404, Type = typeof(CustomServiceResponseNotFound))]
         public async Task<IActionResult> UpdateUser(string id, [FromBody] User user)
         {
-            if (user is null)
+            if (user is null || id != user.UserId)
             {
-                return BadRequest();
+                return BadRequest(new CustomServiceResponseBadRequest(StatusCodes.Status400BadRequest, "Bad Request"));
             }
 
             User? existing = await repo.RetrieveAsync(id);
 
-            if (existing is null) 
+            // блок с приведением UserId к нижнему/верхнему регистру
+            /*if (existing is null) 
             {
                 id = id.ToUpper();
                 user.UserId = user.UserId.ToUpper();
@@ -131,42 +139,42 @@ namespace NLimit.WebApi.Controllers
                     {
                         return NotFound();
                     }
-                    else
-                    {
-                        await repo.UpdateUserAsync(id, user);
-                        return new NoContentResult();
-                    }
-                }
-                else
-                {
+
                     await repo.UpdateUserAsync(id, user);
                     return new NoContentResult();
                 }
-            }
-            else
-            {
+
                 await repo.UpdateUserAsync(id, user);
                 return new NoContentResult();
+            }*/
+
+            if (existing is null)
+            {
+                return NotFound(new CustomServiceResponseNotFound(StatusCodes.Status404NotFound, "Not Found"));
             }
+
+            await repo.UpdateUserAsync(id, user);
+            return new NoContentResult();
         }
 
         // PUT: api/Users/UpdateProfileUser/[id] - обновление данных профиля пользователя
         [HttpPut]
         [Route("UpdateProfileUser/{id}")]
         [ProducesResponseType(204, Type = typeof(User))]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
+        [ProducesResponseType(400, Type = typeof(CustomServiceResponseBadRequest))]
+        [ProducesResponseType(404, Type = typeof(CustomServiceResponseNotFound))]
         public async Task<IActionResult> UpdateProfileUser(string id, [Required] string firstName, [Required] string surname, string? patronymic,
         DateTime? birthDate, string? mobilePhone, string? address)
         {
             if (id is null || firstName is null || surname is null)
             {
-                return BadRequest();
+                return BadRequest(new CustomServiceResponseBadRequest(StatusCodes.Status400BadRequest, "Bad Request"));
             }
 
             User? existing = await repo.RetrieveAsync(id);
 
-            if (existing is null)
+            // блок с приведением UserId к нижнему/верхнему регистру
+            /*if (existing is null)
             {
                 id = id.ToUpper();
                 existing = await repo.RetrieveAsync(id);
@@ -196,25 +204,33 @@ namespace NLimit.WebApi.Controllers
             {
                 await repo.UpdateProfileUserAsync(id, firstName, surname, patronymic, birthDate, mobilePhone, address);
                 return new NoContentResult();
+            }*/
+
+            if (existing is null)
+            {
+                return NotFound(new CustomServiceResponseNotFound(StatusCodes.Status404NotFound, "Not Found"));
             }
+
+            await repo.UpdateProfileUserAsync(id, firstName, surname, patronymic, birthDate, mobilePhone, address);
+            return new NoContentResult();
         }
 
         // PUT: api/Users/UpdateEmail/[id] - обновление email пользователя
         [HttpPut]
         [Route("UpdateEmail/{id}")]
         [ProducesResponseType(204, Type = typeof(User))]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
+        [ProducesResponseType(400, Type = typeof(CustomServiceResponseBadRequest))]
+        [ProducesResponseType(404, Type = typeof(CustomServiceResponseNotFound))]
         public async Task<IActionResult> UpdateEmail(string id, [Required] string newEmail)
         {
             if (id is null || newEmail is null)
             {
-                return BadRequest();
+                return BadRequest(new CustomServiceResponseBadRequest(StatusCodes.Status400BadRequest, "Bad Request"));
             }
 
             User? existing = await repo.RetrieveAsync(id);
-
-            if (existing is null)
+            // блок с приведением UserId к нижнему/верхнему регистру
+            /*if (existing is null)
             {
                 id = id.ToUpper();
                 existing = await repo.RetrieveAsync(id);
@@ -244,20 +260,28 @@ namespace NLimit.WebApi.Controllers
             {
                 await repo.UpdateEmailAsync(id, newEmail);
                 return new NoContentResult();
+            }*/
+
+            if (existing is null)
+            {
+                return NotFound(new CustomServiceResponseNotFound(StatusCodes.Status404NotFound, "Not Found"));
             }
+
+            await repo.UpdateEmailAsync(id, newEmail);
+            return new NoContentResult();
         }
 
         // DELETE: api/Users/[id]
         [HttpDelete("{id}")]
         [ProducesResponseType(204)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(500)]
+        [ProducesResponseType(400, Type = typeof(CustomServiceResponseBadRequest))]
+        [ProducesResponseType(404, Type = typeof(CustomServiceResponseNotFound))]
         public async Task<IActionResult> DeleteCustomer(string id)
         {
             User? existing = await repo.RetrieveAsync(id);
 
-            if (existing is null)
+            // блок с приведением UserId к нижнему/верхнему регистру
+            /*if (existing is null)
             {
                 id = id.ToUpper();
                 existing = await repo.RetrieveAsync(id);
@@ -308,7 +332,20 @@ namespace NLimit.WebApi.Controllers
                 {
                     return BadRequest($"User {id} was found but failed to delete.");
                 }
+            }*/
+
+            if (existing is null)
+            {
+                return NotFound(new CustomServiceResponseNotFound(StatusCodes.Status404NotFound, "Not Found"));
             }
+
+            bool? deleted = await repo.DeleteAsync(id);
+            if (deleted.HasValue && deleted.Value)
+            {
+                return new NoContentResult();
+            }
+
+            return BadRequest($"User {id} was found but failed to delete.");
         }
     }
 }

@@ -32,6 +32,7 @@ public class UserRepository : IUserRepository
     {
         //user.UserId = user.UserId.ToUpper();
 
+
         EntityEntry<User> added = await db.Users.AddAsync(user);
         int affected = await db.SaveChangesAsync();
 
