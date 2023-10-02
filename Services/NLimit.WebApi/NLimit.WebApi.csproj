@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Data\NLimit.Common.DataContext.SqlServer\NLimit.Common.DataContext.SqlServer.csproj" />
     <ProjectReference Include="..\..\Data\NLimit.Common.EntitiesModels.SqlServer\NLimit.Common.EntitiesModels.SqlServer.csproj" />
+    <ProjectReference Include="..\..\Shared\LibraryOfUsefulClasses.csproj" />
   </ItemGroup>
 
 </Project>

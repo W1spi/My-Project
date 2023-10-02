@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using NLimit.WebApi.Repositoires.Users;
 using static NLimit.WebApi.Services.UserProcessingRequestService;
 using NLimit.WebApi.Services;
+using LibraryOfUsefulClasses.Transformations;
 
 namespace NLimit.WebApi.Controllers
 {
@@ -14,7 +15,6 @@ namespace NLimit.WebApi.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserRepository repo;
-
 
         public UsersController (IUserRepository repo)
         {
@@ -41,36 +41,6 @@ namespace NLimit.WebApi.Controllers
         {
             User? user = await repo.RetrieveAsync(id);
 
-            // блок с приведением UserId к нижнему/верхнему регистру
-            /*if (user is null)
-            {
-                id = id.ToUpper();
-                user = await repo.RetrieveAsync(id);
-
-                if (user is null)
-                {
-                    id = id.ToLower();
-                    user = await repo.RetrieveAsync(id);
-
-                    if (user is null)
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        return Ok(user);
-                    }
-                }
-                else
-                {
-                    return Ok(user);
-                }
-            }
-            else
-            {
-                return Ok(user);
-            }*/
-
             if (user is null)
             {
                 return NotFound(new CustomServiceResponseNotFound(StatusCodes.Status404NotFound, "Not Found"));
@@ -88,7 +58,7 @@ namespace NLimit.WebApi.Controllers
                 return BadRequest(new CustomServiceResponseBadRequest(StatusCodes.Status400BadRequest, "Bad Request"));
             }
 
-            user = ProcessingRequestParameters(user, UserOperationType.Create);
+            user.EmptyToNull();
 
             User? addedUser = await repo.CreateAsync(user);
             if (addedUser is null)
@@ -120,34 +90,6 @@ namespace NLimit.WebApi.Controllers
 
             User? existing = await repo.RetrieveAsync(id);
 
-            // блок с приведением UserId к нижнему/верхнему регистру
-            /*if (existing is null) 
-            {
-                id = id.ToUpper();
-                user.UserId = user.UserId.ToUpper();
-
-                existing = await repo.RetrieveAsync(id);
-
-                if (existing is null)
-                {
-                    id = id.ToLower();
-                    user.UserId = user.UserId.ToLower();
-
-                    existing = await repo.RetrieveAsync(id);
-
-                    if (existing is null)
-                    {
-                        return NotFound();
-                    }
-
-                    await repo.UpdateUserAsync(id, user);
-                    return new NoContentResult();
-                }
-
-                await repo.UpdateUserAsync(id, user);
-                return new NoContentResult();
-            }*/
-
             if (existing is null)
             {
                 return NotFound(new CustomServiceResponseNotFound(StatusCodes.Status404NotFound, "Not Found"));
@@ -173,39 +115,6 @@ namespace NLimit.WebApi.Controllers
 
             User? existing = await repo.RetrieveAsync(id);
 
-            // блок с приведением UserId к нижнему/верхнему регистру
-            /*if (existing is null)
-            {
-                id = id.ToUpper();
-                existing = await repo.RetrieveAsync(id);
-
-                if (existing is null)
-                {
-                    id = id.ToLower();
-                    existing = await repo.RetrieveAsync(id);
-
-                    if (existing is null)
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        await repo.UpdateProfileUserAsync(id, firstName, surname, patronymic, birthDate, mobilePhone, address);
-                        return new NoContentResult();
-                    }
-                }
-                else
-                {
-                    await repo.UpdateProfileUserAsync(id, firstName, surname, patronymic, birthDate, mobilePhone, address);
-                    return new NoContentResult();
-                }
-            }
-            else
-            {
-                await repo.UpdateProfileUserAsync(id, firstName, surname, patronymic, birthDate, mobilePhone, address);
-                return new NoContentResult();
-            }*/
-
             if (existing is null)
             {
                 return NotFound(new CustomServiceResponseNotFound(StatusCodes.Status404NotFound, "Not Found"));
@@ -229,38 +138,6 @@ namespace NLimit.WebApi.Controllers
             }
 
             User? existing = await repo.RetrieveAsync(id);
-            // блок с приведением UserId к нижнему/верхнему регистру
-            /*if (existing is null)
-            {
-                id = id.ToUpper();
-                existing = await repo.RetrieveAsync(id);
-
-                if (existing is null)
-                {
-                    id = id.ToLower();
-                    existing = await repo.RetrieveAsync(id);
-
-                    if (existing is null)
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        await repo.UpdateEmailAsync(id, newEmail);
-                        return new NoContentResult();
-                    }
-                }
-                else
-                {
-                    await repo.UpdateEmailAsync(id, newEmail);
-                    return new NoContentResult();
-                }
-            }
-            else
-            {
-                await repo.UpdateEmailAsync(id, newEmail);
-                return new NoContentResult();
-            }*/
 
             if (existing is null)
             {
@@ -279,60 +156,6 @@ namespace NLimit.WebApi.Controllers
         public async Task<IActionResult> DeleteCustomer(string id)
         {
             User? existing = await repo.RetrieveAsync(id);
-
-            // блок с приведением UserId к нижнему/верхнему регистру
-            /*if (existing is null)
-            {
-                id = id.ToUpper();
-                existing = await repo.RetrieveAsync(id);
-
-                if (existing is null)
-                {
-                    id = id.ToLower();
-                    existing = await repo.RetrieveAsync(id);
-
-                    if (existing is null)
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        bool? deleted = await repo.DeleteAsync(id);
-                        if (deleted.HasValue && deleted.Value)
-                        {
-                            return new NoContentResult();
-                        }
-                        else
-                        {
-                            return BadRequest($"User {id} was found but failed to delete.");
-                        }
-                    }
-                }
-                else
-                {
-                    bool? deleted = await repo.DeleteAsync(id);
-                    if (deleted.HasValue && deleted.Value)
-                    {
-                        return new NoContentResult();
-                    }
-                    else
-                    {
-                        return BadRequest($"User {id} was found but failed to delete.");
-                    }
-                }
-            }
-            else
-            {
-                bool? deleted = await repo.DeleteAsync(id);
-                if (deleted.HasValue && deleted.Value)
-                {
-                    return new NoContentResult();
-                }
-                else
-                {
-                    return BadRequest($"User {id} was found but failed to delete.");
-                }
-            }*/
 
             if (existing is null)
             {
