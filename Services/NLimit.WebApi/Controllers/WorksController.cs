@@ -7,11 +7,14 @@ using System.ComponentModel.DataAnnotations;
 using NLimit.WebApi.Repositoires.Users;
 using NLimit.WebApi.Repositoires.Works;
 using Microsoft.IdentityModel.Tokens;
+using NLimit.WebApi.Services.Middleware;
+using Microsoft.AspNetCore.Authorization;
 
 namespace NLimit.WebApi.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class WorksController : ControllerBase
 {
     private readonly IWorkRepository repo;

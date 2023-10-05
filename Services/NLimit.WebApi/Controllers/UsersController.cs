@@ -4,14 +4,17 @@ using Data.NLimit.Common.EntitiesModels.SqlServer;
 using System.Net;
 using System.ComponentModel.DataAnnotations;
 using NLimit.WebApi.Repositoires.Users;
-using static NLimit.WebApi.Services.UserProcessingRequestService;
+//using static NLimit.WebApi.Services.UserProcessingRequestService;
 using NLimit.WebApi.Services;
 using LibraryOfUsefulClasses.Transformations;
+using Microsoft.AspNetCore.Authorization;
+using NLimit.WebApi.Services.Middleware;
 
 namespace NLimit.WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class UsersController : ControllerBase
     {
         private readonly IUserRepository repo;
@@ -58,6 +61,7 @@ namespace NLimit.WebApi.Controllers
                 return BadRequest(new CustomServiceResponseBadRequest(StatusCodes.Status400BadRequest, "Bad Request"));
             }
 
+            // постобработчик при создании записей
             user.EmptyToNull();
 
             User? addedUser = await repo.CreateAsync(user);
