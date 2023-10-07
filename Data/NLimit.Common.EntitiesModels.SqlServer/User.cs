@@ -1,5 +1,6 @@
 ﻿using Azure;
 using Data.NLimit.Common.EntitiesModels.SqlServer;
+//using Newtonsoft.Json;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -7,6 +8,7 @@ using System.Text.Json.Serialization;
 
 namespace Data.NLimit.Common.EntitiesModels.SqlServer;
 
+//[JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
 public class User
 {
     //[Key, StringLength(50), Column(TypeName = "nvarchar (50)")]
@@ -27,14 +29,15 @@ public class User
     //[StringLength(30), Column(TypeName = "nvarchar (30)")]
     [StringLength(30, ErrorMessage = "Длина поля \"Patronymic\" должна быть не больше 30")]
     //[DisplayFormat(ConvertEmptyStringToNull = true)]
-    //[ConvertEmptyStringToNull]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault | JsonIgnoreCondition.WhenWritingNull)]
     public string? Patronymic { get; set; }
 
     [DataType(DataType.Date)]
     public DateTime? BirthDate { get; set; }
 
     [DataType(DataType.Date)]
-    [JsonIgnore]
+    //[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+    [System.Text.Json.Serialization.JsonIgnore]
     public DateTime? StartDate { get; set; }
 
     //[StringLength(100), Column(TypeName = "nvarchar (100)")]
@@ -57,9 +60,9 @@ public class User
 
     public virtual ICollection<Course>? Course { get; set; } = new List<Course>();
 
-    [JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
     public virtual ICollection<UserCourse>? UserCourse { get; set; } = new List<UserCourse>()!;
-    //[JsonIgnore]
+
     public virtual ICollection<Work>? Work { get; set; } = new List<Work>()!;
 }
 

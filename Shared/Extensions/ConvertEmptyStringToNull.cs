@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace LibraryOfUsefulClasses.Transformations;
+﻿namespace LibraryOfUsefulClasses.Extensions;
 
 /// <summary>
 /// Метод расширения для обработки открытых свойств типа.

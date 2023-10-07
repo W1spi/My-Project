@@ -14,7 +14,7 @@ namespace NLimit.WebApi.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize]
+//[Authorize]
 public class WorksController : ControllerBase
 {
     private readonly IWorkRepository repo;
@@ -24,7 +24,7 @@ public class WorksController : ControllerBase
         this.repo = repo;
     }
 
-    [HttpGet]
+    [HttpGet("GetAllWorks")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<Work>))]
     public async Task<IEnumerable<Work>> GetWorks(string? userId)
     {
@@ -83,25 +83,25 @@ public class WorksController : ControllerBase
             value: addedWork);
     }
 
-    [HttpPut("UpdateWork/{id}")]
+    [HttpPut("UpdateWork")]
     [ProducesResponseType(204, Type = typeof(Work))]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> UpdateWork(string id, [FromBody] Work work)
+    public async Task<IActionResult> UpdateWork([FromBody] Work work)
     {
-        if (work is null)
+        if (work is null || work.WorkId is null)
         {
             return BadRequest();
         }
 
-        Work? existWork = await repo.RetrieveAsync(id);
+        Work? existWork = await repo.RetrieveAsync(work.WorkId);
 
         if (existWork is null)
         {
             return NotFound();
         }
 
-        await repo.UpdateAsync(id, work);
+        await repo.UpdateAsync(work.WorkId, work);
         return new NoContentResult();
     }
     

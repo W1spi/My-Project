@@ -1,16 +1,16 @@
 ﻿using System.ComponentModel;
 
-namespace NLimit.WebApi.Services;
+namespace NLimit.WebApi.Services.ResponseTemplates;
 
-public class CustomServiceResponseBadRequest
+public class CustomResponseExamplesBadRequest 
 {
     [DefaultValue(StatusCodes.Status400BadRequest)]
     public int? Code { get; set; }
 
-    [DefaultValue("Bad Request")]
+    [DefaultValue("detailed description of the error")]
     public string? Message { get; set; }
 
-    public CustomServiceResponseBadRequest(int code, string message)
+    public CustomResponseExamplesBadRequest(int code, string message)
     {
         Code = code;
         Message = message;

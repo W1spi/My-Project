@@ -10,7 +10,7 @@ using NLimit.WebApi.Models;
 using NLimit.WebApi.Services.UserAuthentication;
 using System.Text;
 using Data.NLimit.Common.EntitiesModels.SqlServer;
-using NLimit.WebApi.Services;
+using NLimit.WebApi.Services.ResponseTemplates;
 
 namespace NLimit.WebApi.Controllers
 {
@@ -30,7 +30,7 @@ namespace NLimit.WebApi.Controllers
         [AllowAnonymous]
         [HttpPost]
         [ProducesResponseType(200)]
-        [ProducesResponseType(400, Type = typeof(CustomServiceResponseBadRequest))]
+        [ProducesResponseType(400, Type = typeof(CustomResponseExamplesBadRequest))]
         public IActionResult Authentication([FromBody] LoginModel model)
         {
             bool isValid = userService.IsValidUserInformation(model, configuration);

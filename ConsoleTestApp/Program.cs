@@ -1,4 +1,4 @@
-﻿using LibraryOfUsefulClasses.Transformations;
+﻿
 
 namespace ConsoleTestApp;
 
@@ -6,34 +6,24 @@ public class Program
 {
     static void Main(string[] args)
     {
-        var testObj = new
-        {
-            FirstName = "Viktor",
-            Surname = "Testovich",
-            Age = 15,
-            Patronymic = "",
-            City = ""
-        };
+        var a = new A();
 
-        TestObg pers = new("Viktor", "Petrovich", 15, "", "");
-        pers.EmptyToNull();
+        var b = new B()
+        {
+            First = "A",
+            Second = "B",
+            Third = "C",
+        };
     }
 }
 
-public class TestObg
+public class A
 {
-    public string FirstName { get; set; }
-    public string Surname { get; set; }
-    public int Age { get; set; }
-    public string Patronymic { get; set; }
-    public string City { get; set; }
+    public string First { get; set; }
+    public string Second { get; set; }
+}
 
-    public TestObg(string firstName, string surname, int age, string patronymic, string city)
-    {
-        FirstName = firstName;
-        Surname = surname;
-        Age = age;
-        Patronymic = patronymic;
-        City = city;
-    }
+public class B : A
+{
+    public string Third { get; set; }
 }

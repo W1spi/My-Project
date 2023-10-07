@@ -261,7 +261,7 @@ public class IdentityController : Controller
             Email = identityUser.Email
         };
 
-        string uri = "api/Users";
+        string uri = "api/Users/GetAllUsers";
 
         HttpClient client = clientFactory.CreateClient(name: "NLimit.WebApi");
         HttpResponseMessage response = await client.PostAsJsonAsync(uri, user);

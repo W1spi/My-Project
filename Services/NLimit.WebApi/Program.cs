@@ -11,6 +11,7 @@ using NLimit.WebApi.Services.UserAuthentication;
 using Microsoft.Extensions.Configuration;
 using NLimit.WebApi.Services.Middleware;
 using Microsoft.IdentityModel.Logging;
+using Swashbuckle.AspNetCore.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,9 @@ builder.Services.AddNLimitContext();
 builder.Services.AddControllers(options =>
 {
     //options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+}).ConfigureApiBehaviorOptions(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
 });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -107,6 +111,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors(configurePolicy: options =>
+{
+    options.WithMethods("GET", "POST", "PUT", "DELETE");
+    options.WithOrigins("https://localhost:7027/");
+});
+
 app.UseAuthorization();
 
 // MapControllers() вызывается для сопоставления перенаправленных контроллеров атрибутов 
@@ -115,11 +125,5 @@ app.MapControllers();
 
 app.UseMiddleware<JWTMiddleware>();
 //app.UseMiddleware<SecurityHeaders>();
-
-app.UseCors(configurePolicy: options =>
-{
-    options.WithMethods("GET", "POST", "PUT", "DELETE");
-    options.WithOrigins("https://localhost:7027/");
-});
 
 app.Run();

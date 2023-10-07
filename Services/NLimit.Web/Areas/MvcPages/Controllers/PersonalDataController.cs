@@ -36,33 +36,30 @@ namespace NLimit.Web.Areas.MvcPages.Controllers
         {
             var identityUser = await userManager.GetUserAsync(User);
 
-            if (identityUser is not null)
-            {
-                // TODO: пока отталкиваюсь от того, что у пользака точно будет присутствовать запись в обеих БД
-                User? user = await GetUser(identityUser.Id);
-
-                if (user is null || identityUser.Id.ToUpper() != user.UserId.ToUpper())
-                {
-                    return NotFound($"Айдишники записей из разных БД не совпали.");
-                }
-                Console.WriteLine(identityUser.Id);
-                Console.WriteLine(user.UserId);
-                var model = new PersonalAccountViewModel
-                {
-                    FirstName = user.FirstName,
-                    Surname = user.Surname,
-                    Patronymic = user.Patronymic!,
-                    BirthDate = user.BirthDate ?? DateTime.MinValue,
-                    MobilePhone = user.MobilePhone!,
-                    Address = user.Address!
-                };
-
-                return View("~/Areas/MvcPages/Views/PersonalData/Profile.cshtml", model);
-            }
-            else
+            if (identityUser is null)
             {
                 return NotFound($"Unable to load user with ID '{identityUser.Id}'.");
             }
+
+            // TODO: пока отталкиваюсь от того, что у пользака точно будет присутствовать запись в обеих БД
+            User? user = await GetUser(identityUser.Id);
+
+            if (user is null)
+            {
+                return NotFound($"Юзер не найден");
+            }
+
+            var model = new PersonalAccountViewModel
+            {
+                FirstName = user.FirstName,
+                Surname = user.Surname,
+                Patronymic = user.Patronymic!,
+                BirthDate = user.BirthDate ?? DateTime.MinValue,
+                MobilePhone = user.MobilePhone!,
+                Address = user.Address!
+            };
+
+            return View("~/Areas/MvcPages/Views/PersonalData/Profile.cshtml", model);
         }
 
         [HttpPost]
@@ -78,11 +75,15 @@ namespace NLimit.Web.Areas.MvcPages.Controllers
             }
 
             var identityUser = await userManager.GetUserAsync(User);
-            model.Email = identityUser.Email;
+            model.UserId = identityUser.Id;
 
             string responseCode = await UpdateProfileUser(identityUser.Id, model.FirstName, model.Surname, model.Patronymic,
-                model.BirthDate, model.MobilePhone, model.Address);
+             model.BirthDate, model.MobilePhone, model.Address);
 
+            if (responseCode == HttpStatusCode.BadRequest.ToString())
+            {
+                return BadRequest("400 - Неуспешная попытка обновления");
+            }
             if (responseCode != HttpStatusCode.NoContent.ToString())
             {
                 return BadRequest("Неуспешная попытка обновления");
@@ -377,7 +378,7 @@ namespace NLimit.Web.Areas.MvcPages.Controllers
 
         private async Task<User> GetUser(string userId)
         {
-            string uri = $"api/users/{userId}";
+            string uri = $"api/Users/GetOneUser/{userId}";
 
             HttpClient client = clientFactory.CreateClient("NLimit.WebApi");
 
@@ -389,7 +390,7 @@ namespace NLimit.Web.Areas.MvcPages.Controllers
 
             User? user = await response.Content.ReadFromJsonAsync<User>();
 
-            return user;
+            return user!;
         }
 
         private async Task UpdateIdentityEmail(IdentityUser identityUser, string newEmail)
@@ -400,9 +401,9 @@ namespace NLimit.Web.Areas.MvcPages.Controllers
             await userManager.UpdateNormalizedUserNameAsync(identityUser);
         }
 
-        private async Task<string> UpdateUser(string userId, User? user)
+        private async Task<string> UpdateUser(User? user)
         {
-            string uri = $"api/users/{userId}";
+            string uri = $"api/Users/UpdateUser";
 
             HttpClient client = clientFactory.CreateClient("NLimit.WebApi");
 
