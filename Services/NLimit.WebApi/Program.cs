@@ -1,4 +1,3 @@
-using Data.NLimit.Common.DataContext.SqlServer;
 using NLimit.Common.DataContext.SqlServer;
 using NLimit.WebApi.Repositoires.Users;
 using NLimit.WebApi.Repositoires.Works;
@@ -8,10 +7,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using NLimit.WebApi.Services.UserAuthentication;
-using Microsoft.Extensions.Configuration;
 using NLimit.WebApi.Services.Middleware;
 using Microsoft.IdentityModel.Logging;
-using Swashbuckle.AspNetCore.Filters;
+using FluentValidation;
+using NLimit.WebApi.Services.Validation;
+using Data.NLimit.Common.EntitiesModels.SqlServer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +22,7 @@ builder.Services.AddNLimitContext();
 builder.Services.AddControllers(options =>
 {
     //options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+
 }).ConfigureApiBehaviorOptions(options =>
 {
     options.SuppressModelStateInvalidFilter = true;
@@ -89,6 +90,9 @@ builder.Services.AddTransient<IUserService, UserService>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IWorkRepository, WorkRepository>();
+
+// кастомная валидация
+builder.Services.AddScoped<IValidator<User>, UserValidator>();
 
 var app = builder.Build();
 

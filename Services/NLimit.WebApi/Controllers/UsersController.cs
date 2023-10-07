@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Authorization;
 using NLimit.WebApi.Services.Middleware;
 using NLimit.WebApi.Services.ResponseTemplates;
 using Swashbuckle.AspNetCore.Filters;
+using System.Web.WebPages;
+using FluentValidation;
 
 namespace NLimit.WebApi.Controllers
 {
@@ -18,10 +20,12 @@ namespace NLimit.WebApi.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserRepository repo;
+        private readonly IValidator<User> validator;
 
-        public UsersController(IUserRepository repo)
+        public UsersController(IUserRepository repo, IValidator<User> validator)
         {
             this.repo = repo;
+            this.validator = validator;
         }
 
         [HttpGet("GetAllUsers")]
@@ -56,14 +60,20 @@ namespace NLimit.WebApi.Controllers
         [ProducesResponseType(400, Type = typeof(CustomResponseExamplesBadRequest))]
         public async Task<IActionResult> CreateUser([FromBody] User user)
         {
-            if (!ModelState.IsValid)
-            {
-                
-            }
-
             if (user is null)
             {
-                return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, "The response body should not be empty"));
+                return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, "The request body should not be empty"));
+            }
+
+            var validationResult = await validator.ValidateAsync(user);
+            if (!validationResult.IsValid)
+            {
+                // берет первую ошибку валидации
+                var query = (from errors in validationResult.Errors
+                            select errors.ErrorMessage)
+                            .First();
+
+                return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, query));
             }
 
             // постобработчик при создании записей
