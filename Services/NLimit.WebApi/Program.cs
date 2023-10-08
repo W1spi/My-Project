@@ -93,6 +93,7 @@ builder.Services.AddScoped<IWorkRepository, WorkRepository>();
 
 // кастомная валидация
 builder.Services.AddScoped<IValidator<User>, UserValidator>();
+builder.Services.AddScoped<IValidator<Work>, WorkValidator>();
 
 var app = builder.Build();
 

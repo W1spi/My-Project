@@ -11,6 +11,7 @@ using NLimit.WebApi.Services.ResponseTemplates;
 using Swashbuckle.AspNetCore.Filters;
 using System.Web.WebPages;
 using FluentValidation;
+using System.ComponentModel;
 
 namespace NLimit.WebApi.Controllers
 {
@@ -106,6 +107,16 @@ namespace NLimit.WebApi.Controllers
                 return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, "The request body must not be empty, and the id must also match"));
             }
 
+            var validationResult = await validator.ValidateAsync(user);
+            if (!validationResult.IsValid)
+            {
+                var query = (from errors in validationResult.Errors
+                             select errors.ErrorMessage)
+                            .First();
+
+                return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, query));
+            }
+
             User? existing = await repo.RetrieveAsync(user.UserId);
 
             if (existing is null)
@@ -129,10 +140,13 @@ namespace NLimit.WebApi.Controllers
         public async Task<IActionResult> UpdateProfileUser(string id, [Required] string firstName, [Required] string surname, string? patronymic,
         DateTime? birthDate, string? mobilePhone, string? address)
         {
+            // ТУТ ПОКА НЕ ВАЛИДИРУЮ ЗАПРОС, Т.К. ВАЛИДАЦИЮ СДЕЛАЛ ТОЛЬКО ПОД САМ ЭКЗЕМПЛЯР USER
+
             if (id is null || firstName is null || surname is null)
             {
                 return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, "userId, firstName and surname should not be empty"));
             }
+
 
             User? existing = await repo.RetrieveAsync(id);
 
@@ -140,6 +154,7 @@ namespace NLimit.WebApi.Controllers
             {
                 return NotFound(new CustomResponseExamplesNotFound(StatusCodes.Status404NotFound, "User not found"));
             }
+
 
             await repo.UpdateProfileUserAsync(id, firstName, surname, patronymic, birthDate, mobilePhone, address);
             return new NoContentResult();
@@ -153,6 +168,8 @@ namespace NLimit.WebApi.Controllers
         [ProducesResponseType(404, Type = typeof(CustomResponseExamplesNotFound))]
         public async Task<IActionResult> UpdateEmail(string id, [Required] string newEmail)
         {
+            // ТУТ ПОКА НЕ ВАЛИДИРУЮ ЗАПРОС, Т.К. ВАЛИДАЦИЮ СДЕЛАЛ ТОЛЬКО ПОД САМ ЭКЗЕМПЛЯР USER
+
             if (id is null || newEmail is null)
             {
                 return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, "id and email should not be empty"));

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace Data.NLimit.Common.EntitiesModels.SqlServer;
@@ -28,6 +29,7 @@ public class User
     public string? Patronymic { get; set; }
 
     [DataType(DataType.Date)]
+    // сделать обязательным, когда вернусь к работе над фронтом
     public DateTime? BirthDate { get; set; }
 
     [DataType(DataType.Date)]

@@ -11,6 +11,7 @@ namespace NLimit.WebApi.Repositoires.Works;
 public class WorkRepository : IWorkRepository
 {
     private static ConcurrentDictionary<string, Work?> worksCache;
+    private static ConcurrentDictionary<string, User?> usersCache;
 
     private NLimitContext db;
 
@@ -25,6 +26,10 @@ public class WorkRepository : IWorkRepository
         if (worksCache is null)
         {
             worksCache = new ConcurrentDictionary<string, Work?>(db.Works.ToDictionary(s => s.WorkId));
+        }
+        if (usersCache is null)
+        {
+            usersCache = new ConcurrentDictionary<string, User?>(db.Users.ToDictionary(s => s.UserId));
         }
     }
 

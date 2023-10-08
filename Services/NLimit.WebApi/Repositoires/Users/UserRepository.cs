@@ -11,6 +11,7 @@ namespace NLimit.WebApi.Repositoires.Users;
 public class UserRepository : IUserRepository
 {
     private static ConcurrentDictionary<string, User?> usersCache;
+    private static ConcurrentDictionary<string, Work?> worksCache;
 
     private NLimitContext db;
 
@@ -25,6 +26,10 @@ public class UserRepository : IUserRepository
         if (usersCache is null)
         {
             usersCache = new ConcurrentDictionary<string, User?>(db.Users.ToDictionary(s => s.UserId));
+        }
+        if (worksCache is null)
+        {
+            worksCache = new ConcurrentDictionary<string, Work?>(db.Works.ToDictionary(s => s.WorkId));
         }
     }
 
@@ -60,14 +65,6 @@ public class UserRepository : IUserRepository
 
     public Task<User?> RetrieveAsync(string id)
     {
-        //id = id.ToUpper();
-
-        /*User? user = db.Users
-        .Where(s => s.UserId == id)
-        .SingleOrDefault();
-
-        return Task.FromResult(user); */
-
         if (usersCache is null)
         {
             return null!;
@@ -163,8 +160,6 @@ public class UserRepository : IUserRepository
 
     public async Task<bool?> DeleteAsync(string id)
     {
-        //id = id.ToUpper();
-
         User? user = db.Users.Find(id);
         if (user is null)
         {

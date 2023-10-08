@@ -1,4 +1,5 @@
 ﻿using Data.NLimit.Common.EntitiesModels.SqlServer;
+using System.ComponentModel;
 
 namespace NLimit.WebApi.Repositoires.Users;
 public interface IUserRepository

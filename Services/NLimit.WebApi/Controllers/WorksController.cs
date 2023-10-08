@@ -9,6 +9,8 @@ using NLimit.WebApi.Repositoires.Works;
 using Microsoft.IdentityModel.Tokens;
 using NLimit.WebApi.Services.Middleware;
 using Microsoft.AspNetCore.Authorization;
+using FluentValidation;
+using NLimit.WebApi.Services.ResponseTemplates;
 
 namespace NLimit.WebApi.Controllers;
 
@@ -18,10 +20,12 @@ namespace NLimit.WebApi.Controllers;
 public class WorksController : ControllerBase
 {
     private readonly IWorkRepository repo;
+    private readonly IValidator<Work> validator;
 
-    public WorksController(IWorkRepository repo)
+    public WorksController(IWorkRepository repo, IValidator<Work> validator)
     {
         this.repo = repo;
+        this.validator = validator;
     }
 
     [HttpGet("GetAllWorks")]
@@ -67,6 +71,17 @@ public class WorksController : ControllerBase
             return BadRequest();
         }
 
+        var validationResult = await validator.ValidateAsync(work);
+        if (!validationResult.IsValid)
+        {
+            // берет первую ошибку валидации
+            var query = (from errors in validationResult.Errors
+                         select errors.ErrorMessage)
+                        .First();
+
+            return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, query));
+        }
+
         Work? addedWork = await repo.CreateAsync(work);
 
         if (addedWork is null)
@@ -92,6 +107,17 @@ public class WorksController : ControllerBase
         if (work is null || work.WorkId is null)
         {
             return BadRequest();
+        }
+
+        var validationResult = await validator.ValidateAsync(work);
+        if (!validationResult.IsValid)
+        {
+            // берет первую ошибку валидации
+            var query = (from errors in validationResult.Errors
+                         select errors.ErrorMessage)
+                        .First();
+
+            return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, query));
         }
 
         Work? existWork = await repo.RetrieveAsync(work.WorkId);
