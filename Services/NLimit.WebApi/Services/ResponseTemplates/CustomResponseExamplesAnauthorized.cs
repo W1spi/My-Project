@@ -2,15 +2,15 @@
 
 namespace NLimit.WebApi.Services.ResponseTemplates;
 
-public class CustomResponseExamplesBadRequest 
+public class CustomResponseExamplesAnauthorized
 {
-    [DefaultValue(StatusCodes.Status400BadRequest)]
+    [DefaultValue(StatusCodes.Status401Unauthorized)]
     public int? Code { get; set; }
 
-    [DefaultValue("detailed description of the error")]
+    [DefaultValue("Anauthorized")]
     public string? Message { get; set; }
 
-    public CustomResponseExamplesBadRequest(int code, string message)
+    public CustomResponseExamplesAnauthorized(int code, string message)
     {
         Code = code;
         Message = message;

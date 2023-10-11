@@ -1,4 +1,4 @@
-﻿
+﻿using static System.Console;
 
 namespace ConsoleTestApp;
 
@@ -7,13 +7,9 @@ public class Program
     static void Main(string[] args)
     {
         var a = new A();
-
-        var b = new B()
-        {
-            First = "A",
-            Second = "B",
-            Third = "C",
-        };
+        WriteLine(a);
+        WriteLine(typeof(A));
+        WriteLine(sizeof(int));
     }
 }
 

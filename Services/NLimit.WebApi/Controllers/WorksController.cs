@@ -43,19 +43,20 @@ public class WorksController : ControllerBase
 
     [HttpGet("GetInfoAboutWork/{id}", Name = nameof(GetWorks))]
     [ProducesResponseType(200, Type = typeof(Work))]
-    [ProducesResponseType(404)]
+    [ProducesResponseType(400, Type = typeof(CustomResponseExamplesBadRequest))]
+    [ProducesResponseType(404, Type = typeof(CustomResponseExamplesNotFound))]
     public async Task<IActionResult> GetWork(string id)
     {
         if (string.IsNullOrEmpty(id))
         {
-            return BadRequest("Номер задания не передан!");
+            return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, "id must not be empty or null"));
         }
 
         Work? work = await repo.RetrieveAsync(id);
 
         if (work is null)
         {
-            return NotFound("Задание не найдено!");
+            return NotFound(new CustomResponseExamplesNotFound(StatusCodes.Status404NotFound, "Work not found"));
         }
 
         return Ok(work);
@@ -63,12 +64,12 @@ public class WorksController : ControllerBase
 
     [HttpPost("CreateWork", Name = nameof(GetWork))]
     [ProducesResponseType(201, Type = typeof(Work))]
-    [ProducesResponseType(400)]
+    [ProducesResponseType(400, Type = typeof(CustomResponseExamplesBadRequest))]
     public async Task<IActionResult> CreateWork([FromBody] Work work)
     {
         if (work is null)
         {
-            return BadRequest();
+            return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, "The request body should not be empty"));
         }
 
         var validationResult = await validator.ValidateAsync(work);
@@ -86,7 +87,7 @@ public class WorksController : ControllerBase
 
         if (addedWork is null)
         {
-            return BadRequest("Repository failed to create Work.");
+            return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, "Repository failed to create Work"));
         }
 
         return CreatedAtRoute(
@@ -99,14 +100,14 @@ public class WorksController : ControllerBase
     }
 
     [HttpPut("UpdateWork")]
-    [ProducesResponseType(204, Type = typeof(Work))]
-    [ProducesResponseType(400)]
-    [ProducesResponseType(404)]
+    [ProducesResponseType(200, Type = typeof(CustomResponseExamplesOk))]
+    [ProducesResponseType(400, Type = typeof(CustomResponseExamplesBadRequest))]
+    [ProducesResponseType(404, Type = typeof(CustomResponseExamplesNotFound))]
     public async Task<IActionResult> UpdateWork([FromBody] Work work)
     {
         if (work is null || work.WorkId is null)
         {
-            return BadRequest();
+            return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, "The request body must not be empty, and the id must also match"));
         }
 
         var validationResult = await validator.ValidateAsync(work);
@@ -124,39 +125,36 @@ public class WorksController : ControllerBase
 
         if (existWork is null)
         {
-            return NotFound();
+            return NotFound(new CustomResponseExamplesNotFound(StatusCodes.Status404NotFound, "Work not found"));
         }
 
         await repo.UpdateAsync(work.WorkId, work);
-        return new NoContentResult();
+        return Ok(new CustomResponseExamplesOk(StatusCodes.Status200OK, "success"));
     }
     
     [HttpDelete("DeleteWork/{id}")]
-    [ProducesResponseType(204, Type = typeof(Work))]
-    [ProducesResponseType(400)]
-    [ProducesResponseType(404)]
-    [ProducesResponseType(500)]
+    [ProducesResponseType(200, Type = typeof(CustomResponseExamplesOk))]
+    [ProducesResponseType(400, Type = typeof(CustomResponseExamplesBadRequest))]
+    [ProducesResponseType(404, Type = typeof(CustomResponseExamplesNotFound))]
     public async Task<IActionResult> DeleteWork(string id)
     {
         if (string.IsNullOrEmpty(id))
         {
-            return BadRequest();
+            return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, "id must not be empty or null"));
         }
 
         Work? existWork = await repo.RetrieveAsync(id);
         if (existWork is null)
         {
-            return NotFound();
+            return NotFound(new CustomResponseExamplesNotFound(StatusCodes.Status404NotFound, "Work not found"));
         }
 
         bool? deleted = await repo.DeleteAsync(id);
         if (deleted.HasValue && deleted.Value)
         {
-            return new NoContentResult();
+            return Ok(new CustomResponseExamplesOk(StatusCodes.Status200OK, "success"));
         }
-        else
-        {
-            return BadRequest();
-        }
+
+        return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, $"Work '{id}' was found but failed to delete"));
     }
 }

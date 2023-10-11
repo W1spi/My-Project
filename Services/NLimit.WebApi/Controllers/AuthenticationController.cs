@@ -11,6 +11,8 @@ using NLimit.WebApi.Services.UserAuthentication;
 using System.Text;
 using Data.NLimit.Common.EntitiesModels.SqlServer;
 using NLimit.WebApi.Services.ResponseTemplates;
+using Microsoft.AspNetCore.Authentication;
+using System.Security.Principal;
 
 namespace NLimit.WebApi.Controllers
 {
@@ -37,8 +39,7 @@ namespace NLimit.WebApi.Controllers
 
             if (!isValid)
             {
-                //return BadRequest();
-                return new JsonResult(new {code = 400, message = "Invalid userName or password"}) { StatusCode = StatusCodes.Status400BadRequest };
+                return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, "Invalid userName or password"));
             }
 
             var tokenString = GenerateJwtToken(model.UserName);
@@ -51,9 +52,11 @@ namespace NLimit.WebApi.Controllers
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet(nameof(GetResult))]
+        [ProducesResponseType(200, Type = typeof(CustomResponseExamplesOk))]
+        [ProducesResponseType(401, Type = typeof(CustomResponseExamplesAnauthorized))]
         public IActionResult GetResult()
         {
-            return new JsonResult(new { code = 200, message = "API validated" }) { StatusCode = StatusCodes.Status200OK };
+            return Ok(new CustomResponseExamplesOk(StatusCodes.Status200OK, "API validated"));
         }
 
         /// <summary>

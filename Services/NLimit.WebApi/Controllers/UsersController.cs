@@ -97,7 +97,7 @@ namespace NLimit.WebApi.Controllers
 
         // PUT: api/Users/UpdateUser - полное обновление пользователя
         [HttpPut("UpdateUser")]
-        [ProducesResponseType(204, Type = typeof(User))]
+        [ProducesResponseType(200, Type = typeof(CustomResponseExamplesOk))]
         [ProducesResponseType(400, Type = typeof(CustomResponseExamplesBadRequest))]
         [ProducesResponseType(404, Type = typeof(CustomResponseExamplesNotFound))]
         public async Task<IActionResult> UpdateUser([FromBody] User user)
@@ -128,13 +128,13 @@ namespace NLimit.WebApi.Controllers
             //user.IgnorEmptyParam(existing);
 
             await repo.UpdateUserAsync(user.UserId, user);
-            return new JsonResult(new { code = 200, message = "success" }) { StatusCode = 200 };
+            return Ok(new CustomResponseExamplesOk(StatusCodes.Status200OK, "success"));
         }
 
         // PUT: api/Users/UpdateProfileUser/[id] - обновление данных профиля пользователя
         [HttpPut]
         [Route("UpdateProfileUser/{id}")]
-        [ProducesResponseType(204, Type = typeof(User))]
+        [ProducesResponseType(200, Type = typeof(CustomResponseExamplesOk))]
         [ProducesResponseType(400, Type = typeof(CustomResponseExamplesBadRequest))]
         [ProducesResponseType(404, Type = typeof(CustomResponseExamplesNotFound))]
         public async Task<IActionResult> UpdateProfileUser(string id, [Required] string firstName, [Required] string surname, string? patronymic,
@@ -157,13 +157,13 @@ namespace NLimit.WebApi.Controllers
 
 
             await repo.UpdateProfileUserAsync(id, firstName, surname, patronymic, birthDate, mobilePhone, address);
-            return new NoContentResult();
+            return Ok(new CustomResponseExamplesOk(StatusCodes.Status200OK, "success"));
         }
 
         // PUT: api/Users/UpdateEmail/[id] - обновление email пользователя
         [HttpPut]
         [Route("UpdateEmail/{id}")]
-        [ProducesResponseType(204, Type = typeof(User))]
+        [ProducesResponseType(200, Type = typeof(CustomResponseExamplesOk))]
         [ProducesResponseType(400, Type = typeof(CustomResponseExamplesBadRequest))]
         [ProducesResponseType(404, Type = typeof(CustomResponseExamplesNotFound))]
         public async Task<IActionResult> UpdateEmail(string id, [Required] string newEmail)
@@ -183,16 +183,21 @@ namespace NLimit.WebApi.Controllers
             }
 
             await repo.UpdateEmailAsync(id, newEmail);
-            return new NoContentResult();
+            return Ok(new CustomResponseExamplesOk(StatusCodes.Status200OK, "success"));
         }
 
         // DELETE: api/Users/DeletUser/[id]
         [HttpDelete("DeleteUser/{id}")]
-        [ProducesResponseType(204)]
+        [ProducesResponseType(200, Type = typeof(CustomResponseExamplesOk))]
         [ProducesResponseType(400, Type = typeof(CustomResponseExamplesBadRequest))]
         [ProducesResponseType(404, Type = typeof(CustomResponseExamplesNotFound))]
         public async Task<IActionResult> DeleteCustomer(string id)
         {
+            if (string.IsNullOrEmpty(id))
+            {
+                return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, "id must not be empty or null"));
+            }
+
             User? existing = await repo.RetrieveAsync(id);
 
             if (existing is null)
@@ -203,7 +208,7 @@ namespace NLimit.WebApi.Controllers
             bool? deleted = await repo.DeleteAsync(id);
             if (deleted.HasValue && deleted.Value)
             {
-                return new NoContentResult();
+                return Ok(new CustomResponseExamplesOk(StatusCodes.Status200OK, "success"));
             }
 
             return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, $"User {id} was found but failed to delete"));
