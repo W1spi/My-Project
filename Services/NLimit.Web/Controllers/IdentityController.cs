@@ -258,10 +258,11 @@ public class IdentityController : Controller
             UserId = identityUser.Id,
             FirstName = model.FirstName,
             Surname = model.Surname,
+            BirthDate = DateTime.Now, // для теста, пока не выведу на UI поле 
             Email = identityUser.Email
         };
 
-        string uri = "api/Users/GetAllUsers";
+        string uri = "api/Users/CreateUser";
 
         HttpClient client = clientFactory.CreateClient(name: "NLimit.WebApi");
         HttpResponseMessage response = await client.PostAsJsonAsync(uri, user);

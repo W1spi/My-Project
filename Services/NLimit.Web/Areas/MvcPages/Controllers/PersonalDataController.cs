@@ -1,5 +1,6 @@
 ﻿using Data.NLimit.Common.DataContext.SqlServer;
 using Data.NLimit.Common.EntitiesModels.SqlServer;
+using FluentValidation; // кастомная валидация
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using NLimit.Web.AppServices;
@@ -9,7 +10,7 @@ using Org.BouncyCastle.Asn1.X509.SigI;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
-//using System.Web.Mvc;
+using System.Web.WebPages;
 
 namespace NLimit.Web.Areas.MvcPages.Controllers
 {
@@ -20,14 +21,18 @@ namespace NLimit.Web.Areas.MvcPages.Controllers
         private readonly SignInManager<IdentityUser> signInManager;
         private readonly UserManager<IdentityUser> userManager;
         private readonly ILogger<PersonalDataController> logger;
+        private readonly IValidator<PersonalAccountViewModel> validator;
 
-        public PersonalDataController(NLimitContext injectedContext, SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager, IHttpClientFactory httpClientFactory, ILogger<PersonalDataController> logger)
+        public PersonalDataController(NLimitContext injectedContext, SignInManager<IdentityUser> signInManager, 
+            UserManager<IdentityUser> userManager, IHttpClientFactory httpClientFactory, 
+            ILogger<PersonalDataController> logger, IValidator<PersonalAccountViewModel> validator)
         {
             clientFactory = httpClientFactory;
             db = injectedContext;
             this.signInManager = signInManager;
             this.userManager = userManager;
             this.logger = logger;
+            this.validator = validator;
         }
 
 
@@ -77,16 +82,23 @@ namespace NLimit.Web.Areas.MvcPages.Controllers
             var identityUser = await userManager.GetUserAsync(User);
             model.UserId = identityUser.Id;
 
-            string responseCode = await UpdateProfileUser(identityUser.Id, model.FirstName, model.Surname, model.Patronymic,
+            var validationResult = await validator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                // берет первую ошибку валидации
+                var query = (from errors in validationResult.Errors
+                             select errors.ErrorMessage)
+                            .First();
+
+                return View("~/Areas/MvcPages/Views/PersonalData/Profile.cshtml", model);
+            }
+
+            HttpStatusCode responseCode = await UpdateProfileUser(identityUser.Id, model.FirstName, model.Surname, model.Patronymic,
              model.BirthDate, model.MobilePhone, model.Address);
 
-            if (responseCode == HttpStatusCode.BadRequest.ToString())
+            if (responseCode != HttpStatusCode.OK)
             {
-                return BadRequest("400 - Неуспешная попытка обновления");
-            }
-            if (responseCode != HttpStatusCode.NoContent.ToString())
-            {
-                return BadRequest("Неуспешная попытка обновления");
+                return BadRequest(responseCode.ToString() + " " + "Произошла ошибка при обновлении");
             }
 
             model.UpdatedSuccessfully = true;
@@ -414,7 +426,7 @@ namespace NLimit.Web.Areas.MvcPages.Controllers
             return responseCode;
         }
 
-        private async Task<string> UpdateProfileUser(string id, string firstName, string surname, string? patronymic,
+        private async Task<HttpStatusCode> UpdateProfileUser(string id, string firstName, string surname, string? patronymic,
         DateTime? birthDate, string? mobilePhone, string? address)
         {
             string uri = $"api/Users/UpdateProfileUser/{id}?firstName={firstName}&surname={surname}&patronymic={patronymic}" +
@@ -428,7 +440,7 @@ namespace NLimit.Web.Areas.MvcPages.Controllers
 
             HttpResponseMessage response = await client.SendAsync(request);
 
-            var responseCode = response.StatusCode.ToString();
+            var responseCode = response.StatusCode;
 
             return responseCode;
         }
