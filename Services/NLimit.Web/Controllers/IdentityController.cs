@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Net;
 using Highlight;
 using Data.NLimit.Common.DataContext.SqlServer;
+using System.Composition;
 
 namespace NLimit.Web.Controllers;
 
@@ -54,13 +55,15 @@ public class IdentityController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Login(string? returnUrl = null)
+    public async Task<IActionResult> Login(AuthStatus? status, string? returnUrl = null)
     {
         returnUrl ??= Url.Content("~/");
         await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+
         return View(new LoginViewModel
         {
-            ReturnUrl = returnUrl
+            ReturnUrl = returnUrl,
+            AuthStatus = status ?? AuthStatus.None
         });
     }
 
@@ -69,7 +72,8 @@ public class IdentityController : Controller
     {
         model.ExternalLogins = (await signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
-        if (ModelState.IsValid)
+        if (!(string.IsNullOrEmpty(model.Email) || string.IsNullOrWhiteSpace(model.Email) ||
+            string.IsNullOrEmpty(model.Password) || string.IsNullOrWhiteSpace(model.Password)))
         {
             // ищем пользователя
             var user = await userManager.FindByNameAsync(model.Email);
@@ -78,32 +82,31 @@ public class IdentityController : Controller
                 // проверяем, подтвержден ли email
                 if (!await userManager.IsEmailConfirmedAsync(user))
                 {
-                    ModelState.AddModelError(string.Empty, "Email не был подтвержден");
-                    return View(model);
+                    return RedirectToAction("Login", new { status = AuthStatus.EmailNotConfirmed });
                 }
-            }
 
-            var result = await signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+                var result = await signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
 
-            if (result.Succeeded)
-            {
-                // проверяем, принадлежит ли URL приложению
-                if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
+                // если успешно авторизовались
+                if (result.Succeeded)
                 {
-                    loginLogger.LogInformation("User logged in.");
-                    return Redirect(model.ReturnUrl);
-                }
-                else
-                {
+                    // проверяем, принадлежит ли URL приложению
+                    if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
+                    {
+                        loginLogger.LogInformation("User logged in.");
+                        return Redirect(model.ReturnUrl);
+                    }
+
                     return RedirectToAction("Index", "Home");
                 }
+
+                return RedirectToAction("Login", new { status = AuthStatus.IncorrectData });
             }
-            else
-            {
-                ModelState.AddModelError(string.Empty, "Введены некорректные данные! Повторите попытку.");
-            }
+
+            return RedirectToAction("Login", new { status = AuthStatus.NotRegistered });
         }
-        return View(model);
+
+        return RedirectToAction("Login", new { status = AuthStatus.ValidationError });
     }
 
     [HttpGet]
@@ -134,32 +137,47 @@ public class IdentityController : Controller
     }*/
 
     [HttpGet]
-    public async Task<IActionResult> Register (string? returnUrl = null)
+    public async Task<IActionResult> Register (RegisterStatus? status, string? returnUrl = null)
     {
+        // FIXME (08.11.2023)
+        // при открытии вьюхи сразу будут подсвечены ошибки валидации,
+        // т.к. в параметрах метода передается модель. Подумать, как обойти
+
+        // UPD (10.11.2023)
+        // обошел, передаю теперь енам
+
         return View(new RegisterViewModel
         {
             ReturnUrl = returnUrl,
-            ExternalLogins = (await signInManager.GetExternalAuthenticationSchemesAsync()).ToList()
+            ExternalLogins = (await signInManager.GetExternalAuthenticationSchemesAsync()).ToList(),
+            RegisterStatus = status ?? RegisterStatus.None
         });
     }
 
     [HttpPost]
-    public async Task<IActionResult> Register (RegisterViewModel? model)
+    public async Task<IActionResult> Register (RegisterViewModel model)
     {
         // FIXME
         // если срабатывает валидация на стороне сервера, то в БД NLimit создается запись (а не должна!)
 
         var clietnIsPresent = await userManager.FindByNameAsync(model.Email);
 
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         if (clietnIsPresent is not null)
         {
-            return BadRequest("По указанному email уже зарегистрирован пользователь!");
+            return RedirectToAction("Register", new { status = RegisterStatus.AlreadyRegistered });
         }
+
+        if (model.FirstName is null || model.Surname is null || model.Email is null || 
+            model.Password is null || model.ConfirmPassword is null)
+        {
+            return RedirectToAction("Register", new { status = RegisterStatus.IncorrectData });
+        }
+
+        /*if (!ModelState.IsValid)
+        {
+            model.RegisterStatus = RegisterStatus.ValidationError;
+            return RedirectToAction("Register", model);
+        }*/
 
         var user = new IdentityUser();
         try
@@ -181,7 +199,7 @@ public class IdentityController : Controller
 
         if (!result.Succeeded)
         {
-            return BadRequest("Клиент не был создан (что-то пошло не так с identity)");
+            return RedirectToAction("Register", new { status = RegisterStatus.InternalServerError });
         }
 
         regLogger.LogInformation("User created a new account with password (Identity DB).");
@@ -191,7 +209,8 @@ public class IdentityController : Controller
 
         if (responseCode.ToString() != HttpStatusCode.Created.ToString())
         {
-            return BadRequest("Клиент не был создан (что-то пошло не так с NLimit)");
+            await userManager.DeleteAsync(user);
+            return RedirectToAction("Register", new { status = RegisterStatus.NLimitInternalServerError });
         }
 
         // генерация токена для пользователя
@@ -211,7 +230,7 @@ public class IdentityController : Controller
             $"Добрый день! Вам направлено тестовое подтверждения. " +
             $"Пожалуйста, подтвердите регистрацию, перейдя по ссылке: <a href='{callbackUrl}'>link</a>");
 
-        return Content("Для завершения регистрации проверьте электронную почту и перейдите по ссылке, указанной в письме.");
+        return RedirectToAction("Register", new { status = RegisterStatus.Success });
     }
 
     [HttpGet]

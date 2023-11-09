@@ -18,17 +18,13 @@ public class User
     [Display(Name = "Имя")]
     public string FirstName { get; set; }
 
-    //[Required, StringLength(30), Column(TypeName = "nvarchar (30)")]
     [Required(ErrorMessage = "Поле [Фамилия] является обязательным")]
     [StringLength(30, ErrorMessage = "Длина поля [Фамилия] должна быть не больше 30")]
     [Display(Name = "Фамилия")]
     public string Surname { get; set; }
 
-    //[StringLength(30), Column(TypeName = "nvarchar (30)")]
     [StringLength(30, ErrorMessage = "Длина поля [Отчество] должна быть не больше 30")]
     [Display(Name = "Отчество")]
-    //[DisplayFormat(ConvertEmptyStringToNull = true)]
-    //[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault | JsonIgnoreCondition.WhenWritingNull)]
     public string? Patronymic { get; set; }
 
     [DataType(DataType.Date)]
@@ -37,28 +33,23 @@ public class User
     public DateTime? BirthDate { get; set; }
 
     [DataType(DataType.Date)]
-    //[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     [JsonIgnore]
     public DateTime? StartDate { get; set; }
 
-    //[StringLength(100), Column(TypeName = "nvarchar (100)")]
     [StringLength(100, ErrorMessage = "Длина поля [Адрес] должна быть не больше 100")]
     [Display(Name = "Адрес")]
     public string? Address { get; set; }
 
-    //[Required, StringLength(50), DataType(DataType.EmailAddress), Column(TypeName = "nvarchar (50)")]
     [Required(ErrorMessage = "Поле [Email] является обязательным")]
     [StringLength(50, ErrorMessage = "Длина поля [Email] должна быть не больше 50")]
     [RegularExpression(@"^[-\w.]+@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,4}$", ErrorMessage = "Некорректное значение в поле [Email]")]
     [Display(Name = "Email")]
     public string Email { get; set; }
 
-    //[StringLength(30), DataType(DataType.PhoneNumber), Column(TypeName = "nvarchar (30)")]
     [StringLength(30, ErrorMessage = "Длина поля [Мобильный телефон] должна быть не больше 30")]
     [Display(Name = "Мобильный телефон")]
     public string? MobilePhone { get; set; }
 
-    //[StringLength(30), DataType(DataType.PhoneNumber), Column(TypeName = "nvarchar (30)")]
     [StringLength(30, ErrorMessage = "Длина поля [Дополнительный телефон] должна быть не больше 30")]
     [Display(Name = "Дополнительный телефон")]
     public string? AdditionalPhone { get; set; }

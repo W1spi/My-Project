@@ -7,23 +7,23 @@
     @if (SignInManager.IsSignedIn(User) && (User.Identity?.IsAuthenticated ?? false))
 {
     <li class="nav-item input-group-text mx-2">
-            <a asp-area="" asp-controller="PersonalData" asp-action="Profile" method="get" class="icon-link link-info bi bi-person-workspace text-dark text-decoration-none">Profile</a>
+            <a asp-area="" asp-controller="PersonalData" asp-action="Profile" method="get" class="icon-link link-info bi bi-person-workspace text-dark text-decoration-none">Профиль</a>
             <!-- Hello User.Identity?.Name! -->
     </li>
     <li class="nav-item input-group-text">
            <!-- <form asp-controller="Identity" asp-action="Logout" asp-route-returnUrl="Url.Action("Login", "Identity")">
                 <button type="submit" class="icon-link link-info btn bi bi-door-open-fill text-dark">Logout</button>
             </form> -->
-            <a class="icon-link link-info bi bi-door-open-fill text-dark text-decoration-none" asp-controller="Identity" asp-action="Logout" method="get" asp-route-returnUrl="@Url.Action("Login", "Identity")">Logout</a>
+            <a class="icon-link link-info bi bi-door-open-fill text-dark text-decoration-none" asp-controller="Identity" asp-action="Logout" method="get" asp-route-returnUrl="@Url.Action("Login", "Identity")">Выйти</a>
     </li>
 }
 else
 {
     <li class="nav-item input-group-text mx-2">
-            <a class="icon-link link-info bi bi-person-fill-add text-dark text-decoration-none" asp-controller="Identity" asp-action="Register" method="get">Register</a>
+            <a class="icon-link link-info bi bi-person-fill-add text-dark text-decoration-none" asp-controller="Identity" asp-action="Register" method="get">Регистрация</a>
     </li>
     <li class="nav-item input-group-text mx-2">
-            <a class="icon-link link-info bi bi-door-open-fill text-dark text-decoration-none" asp-controller="Identity" asp-action="Login" method="get">Login</a>
+            <a class="icon-link link-info bi bi-door-open-fill text-dark text-decoration-none" asp-controller="Identity" asp-action="Login" method="get">Авторизация</a>
     </li>
 }
 </ul>

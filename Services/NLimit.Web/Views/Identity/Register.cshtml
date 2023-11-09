@@ -1,20 +1,22 @@
 ﻿@model RegisterViewModel
 
 @{
-    ViewData["Title"] = "Register (View)";
+    ViewData["Title"] = "Register";
 }
 
 <h1 class="mb-5 text-center font-weight-normal"></h1>
 
-<div class="container pt-3 bg-light bg-opacity-25">
+<partial name="_RegisterValidationPartial" />
+
+<div class="container pt-5 bg-light bg-opacity-25">
     <div class="d-flex justify-content-center">
-        <form asp-controller="Identity" asp-action="Register" id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="mt-5">
-            <h2 class="mb-3 font-weight-normal">Create a new account</h2>
+        <form asp-controller="Identity" asp-action="Register" id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="w-25 mt-5">
+            <h2 class="mb-3 font-weight-normal text-center">Регистрация</h2>
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
 
             <div class="mb-4">
                 <div>
-                    <label asp-for="FirstName" class="form-label">First Name</label>
+                    <label asp-for="FirstName" class="form-label">Имя</label>
                     <div class="input-group">
                         <div>
                             <span class="input-group-text-icon">
@@ -31,7 +33,7 @@
 
             <div class="mb-4">
                 <div>
-                    <label asp-for="Surname" class="form-label">Surname</label>
+                    <label asp-for="Surname" class="form-label">Фамилия</label>
                     <div class="input-group">
                         <div>
                             <span class="input-group-text-icon">
@@ -65,7 +67,7 @@
 
             <div class="mb-4">
                 <div>
-                    <label asp-for="Password" class="form-label">Password</label>
+                    <label asp-for="Password" class="form-label">Пароль</label>
                     <div class="input-group">
                         <div>
                             <span class="input-group-text-icon">
@@ -82,7 +84,7 @@
 
             <div class="mb-4">
                 <div>
-                    <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
+                    <label asp-for="ConfirmPassword" class="form-label">Повторите пароль</label>
                     <div class="input-group">
                         <div>
                             <span class="input-group-text-icon">
@@ -98,7 +100,7 @@
             </div>
 
             <div class="text-center">
-                <button id="registerSubmit" type="submit" class="w-50 btn btn-sx btn-info">Register</button>
+                <button id="registerSubmit" type="submit" class="btn btn-lg btn-info btn-block border-2">Зарегистрироваться</button>
             </div>
         </form>
     </div>

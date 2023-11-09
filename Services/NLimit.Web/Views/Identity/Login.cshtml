@@ -1,46 +1,38 @@
 ﻿@model LoginViewModel
 
 @{
-    ViewData["Title"] = "Log in (View)";
+    ViewData["Title"] = "Sign in";
 }
 
 <h1 class="mb-5 text-center font-weight-normal"></h1>
+
+<partial name="_AuthValidationPartial" />
+
 <div class="container pt-5 bg-light bg-opacity-25">
     <div class="d-flex justify-content-center mt-5">
         <form asp-controller="Identity" asp-action="Login" asp-route-returnUrl="@Model.ReturnUrl"
               id="account" class="form-signin w-25 mt-5" method="post">
-            <h3 class="mb-3 font-weight-normal text-center">Please sign in</h3>
+            <h3 class="mb-3 font-weight-normal text-center">Пожалуйста, авторизуйтесь</h3>
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-            <div class="mb-3">
+            <div class="mb-4">
                 <label asp-for="Email" class="form-label">Email</label>
                 <input asp-for="Email" class="form-control-color-info border-2" autocomplete="username" placeholder="Enter your email address " aria-required="true" />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
-            <div class="mb-3">
-                <label asp-for="Password" class="form-label">Password</label>
+            <div class="mb-4">
+                <label asp-for="Password" class="form-label">Пароль</label>
                 <input asp-for="Password" class="form-control-color-info border-2" autocomplete="current-password" placeholder="Enter your password" aria-required="true" />
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
-            <div class="checkbox mb-3">
+            <div class="checkbox mb-4">
                 <label asp-for="RememberMe" class="form-label">
                     <input type="checkbox" class="form-check-input border-2" asp-for="RememberMe" />
                     @Html.DisplayNameFor(m => m.RememberMe)
                 </label>
             </div>
             <div>
-                <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-info btn-block border-2">Sign in</button>
+                <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-info btn-block border-2">Авторизоваться</button>
             </div>
-            <!-- <div>
-                 <p>
-                     <a id="forgot-password" asp-page="./ForgotPassword">Forgot your password?</a>
-                 </p>
-                 <p>
-                     <a asp-page="./Register" asp-route-returnUrl="Model.ReturnUrl">Register as a new user</a>
-                 </p>
-                 <p>
-                     <a id="resend-confirmation" asp-page="./ResendEmailConfirmation">Resend email confirmation</a>
-                 </p>
-             </div> -->
         </form>
     </div>
 </div>
