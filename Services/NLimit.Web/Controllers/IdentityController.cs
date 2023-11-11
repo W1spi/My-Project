@@ -118,24 +118,6 @@ public class IdentityController : Controller
         return RedirectToAction("Login", "Identity");
     }
 
-    // предыдущая версия метода Logout 
-    /*[HttpPost]
-    public async Task<IActionResult> Logout(string? returnUrl = null)
-    {
-        // удаляем аутентификационные куки
-        await signInManager.SignOutAsync();
-        loginLogger.LogInformation("User logged out.");
-
-        if (returnUrl is not null)
-        {
-            return LocalRedirect(returnUrl);
-        }
-        else
-        {
-            return RedirectToAction("Login", "Identity");
-        }
-    }*/
-
     [HttpGet]
     public async Task<IActionResult> Register (RegisterStatus? status, string? returnUrl = null)
     {
@@ -167,8 +149,8 @@ public class IdentityController : Controller
             return RedirectToAction("Register", new { status = RegisterStatus.AlreadyRegistered });
         }
 
-        if (model.FirstName is null || model.Surname is null || model.Email is null || 
-            model.Password is null || model.ConfirmPassword is null)
+        if (model.FirstName is null || model.Surname is null || model.BirthDate is null
+            || model.Email is null || model.Password is null || model.ConfirmPassword is null)
         {
             return RedirectToAction("Register", new { status = RegisterStatus.IncorrectData });
         }
@@ -251,14 +233,12 @@ public class IdentityController : Controller
 
         // проверяем соответствие токена пользователю
         var result = await userManager.ConfirmEmailAsync(user, code);
-        if (result.Succeeded)
-        {
-            return RedirectToAction("Index", "Home");
-        }
-        else
+        if (!result.Succeeded)
         {
             return View("Error");
         }
+
+        return RedirectToAction("Index", "Home");
     }
 
     private IUserEmailStore<IdentityUser> GetEmailStore()
@@ -277,7 +257,7 @@ public class IdentityController : Controller
             UserId = identityUser.Id,
             FirstName = model.FirstName,
             Surname = model.Surname,
-            BirthDate = DateTime.Now, // для теста, пока не выведу на UI поле 
+            BirthDate = model.BirthDate, //DateTime.Now, // для теста, пока не выведу на UI поле 
             Email = identityUser.Email
         };
 

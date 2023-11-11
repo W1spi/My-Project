@@ -27,9 +27,9 @@ public class User
     [Display(Name = "Отчество")]
     public string? Patronymic { get; set; }
 
+    // убрал обязательность в этой модели, т.к. падаем на 500 ошибке
     [DataType(DataType.Date)]
     [Display(Name = "Дата рождения")]
-    // сделать обязательным, когда вернусь к работе над фронтом
     public DateTime? BirthDate { get; set; }
 
     [DataType(DataType.Date)]

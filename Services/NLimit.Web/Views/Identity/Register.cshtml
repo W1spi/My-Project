@@ -46,7 +46,24 @@
                         </div>
                     </div>
                 </div>
-            </div> 
+            </div>
+
+            <div class="mb-4">
+                <div>
+                    <label asp-for="BirthDate" class="form-label">Дата рождения</label>
+                    <div class="input-group">
+                        <div>
+                            <span class="input-group-text-icon">
+                                <i class="col-md-2 bi bi-calendar-date-fill"></i>
+                            </span>
+                        </div>
+                        <div class="col-md-10">
+                            <input asp-for="BirthDate" class="datepicker form-control-border-field border-1" autocomplete="on" aria-required="true" placeholder="Enter your date of birth" />
+                            <span class="text-danger" asp-validation-for="BirthDate"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <div class="mb-4">
                 <div>

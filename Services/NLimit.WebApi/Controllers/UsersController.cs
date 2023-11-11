@@ -138,13 +138,13 @@ namespace NLimit.WebApi.Controllers
         [ProducesResponseType(400, Type = typeof(CustomResponseExamplesBadRequest))]
         [ProducesResponseType(404, Type = typeof(CustomResponseExamplesNotFound))]
         public async Task<IActionResult> UpdateProfileUser(string id, [Required] string firstName, [Required] string surname, string? patronymic,
-        DateTime? birthDate, string? mobilePhone, string? address)
+        [Required] DateTime? birthDate, string? mobilePhone, string? address)
         {
             // ТУТ ПОКА НЕ ВАЛИДИРУЮ ЗАПРОС, Т.К. ВАЛИДАЦИЮ СДЕЛАЛ ТОЛЬКО ПОД САМ ЭКЗЕМПЛЯР USER
 
-            if (id is null || firstName is null || surname is null)
+            if (id is null || firstName is null || surname is null || birthDate is null)
             {
-                return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, "userId, firstName and surname should not be empty"));
+                return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, "userId, firstName, surname and birthdate should not be empty"));
             }
 
 

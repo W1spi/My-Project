@@ -5,15 +5,15 @@
     var hasExternalLogins = (await signInManager.GetExternalAuthenticationSchemesAsync()).Any();
 }
 
-<ul class="nav nav-pills flex-column">
+<ul class="nav nav-pills flex-column border-opacity-100">
     <li class="nav-item">
-        <a class="nav-link @ManageNavigationPages.ProfileNavClass(ViewContext)" id="profile" asp-controller="PersonalData" asp-action="Profile" method="get">Profile</a>
+        <a class="nav-link fw-bold @ManageNavigationPages.ProfileNavClass(ViewContext)" id="profile" asp-controller="PersonalData" asp-action="Profile" method="get">Основная информация</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link @ManageNavigationPages.EmailNavClass(ViewContext)" id="email" asp-controller="PersonalData" asp-action="Email" method="get">Email</a>
+        <a class="nav-link fw-bold @ManageNavigationPages.EmailNavClass(ViewContext)" id="email" asp-controller="PersonalData" asp-action="Email" method="get">Email</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link @ManageNavigationPages.ChangePasswordNavClass(ViewContext)" id="change-password" asp-controller="PersonalData" asp-action="ChangePassword" method="get">Password</a>
+        <a class="nav-link fw-bold @ManageNavigationPages.ChangePasswordNavClass(ViewContext)" id="change-password" asp-controller="PersonalData" asp-action="ChangePassword" method="get">Пароль</a>
     </li>
     @if (hasExternalLogins)
     {
@@ -25,6 +25,6 @@
           <a class="nav-link ManageNavigationPages.TwoFactorAuthenticationNavClass(ViewContext)" id="two-factor" asp-controller="PersonalData" asp-action="" method="get">Two-factor authentication</a>
     </li> -->
     <li class="nav-item">
-        <a class="nav-link @ManageNavigationPages.PersonalDataNavClass(ViewContext)" id="personal-data" asp-controller="PersonalData" asp-action="PersData" method="get">Personal data</a>
+        <a class="nav-link fw-bold @ManageNavigationPages.PersonalDataNavClass(ViewContext)" id="personal-data" asp-controller="PersonalData" asp-action="PersData" method="get">Персональные данные</a>
     </li>
 </ul>

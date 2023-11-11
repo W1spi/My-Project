@@ -51,17 +51,19 @@ namespace NLimit.Web.Areas.MvcPages.Controllers
 
             if (user is null)
             {
-                return NotFound($"Юзер не найден");
+                return NotFound($"Пользователь не найден");
             }
 
-            var model = new PersonalAccountViewModel
+            PersonalAccountViewModel? model = (user as PersonalAccountViewModel) ?? new PersonalAccountViewModel
             {
+                UserId = user.UserId,
                 FirstName = user.FirstName,
                 Surname = user.Surname,
                 Patronymic = user.Patronymic!,
-                BirthDate = user.BirthDate ?? DateTime.MinValue,
+                BirthDate = user.BirthDate,
                 MobilePhone = user.MobilePhone!,
-                Address = user.Address!
+                Address = user.Address!,
+                IsEmailConfirmed = identityUser.EmailConfirmed
             };
 
             return View("~/Areas/MvcPages/Views/PersonalData/Profile.cshtml", model);
@@ -70,10 +72,6 @@ namespace NLimit.Web.Areas.MvcPages.Controllers
         [HttpPost]
         public async Task<IActionResult> Profile(PersonalAccountViewModel? model)
         {
-            // TODO: пока убираю проверка модели, т.к. там нужно править. Сейчас не заходим в if,
-            //       т.к. не проходит валидацию email (в модели висит атрибут обязательности, 
-            //       а с формы уходит null
-
             if (model is null)
             {
                 return BadRequest();
@@ -241,7 +239,7 @@ namespace NLimit.Web.Areas.MvcPages.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ChangePassword(string oldPassword, string newPassword, string confirmPassword)
+        public async Task<IActionResult> ChangePassword(string currentPassword, string newPassword, string confirmPassword)
         {
             PersonalAccountViewModel model = new();
 
@@ -257,7 +255,7 @@ namespace NLimit.Web.Areas.MvcPages.Controllers
                 return NotFound($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
             }
 
-            var changePasswordResult = await userManager.ChangePasswordAsync(identityUser, oldPassword, newPassword);
+            var changePasswordResult = await userManager.ChangePasswordAsync(identityUser, currentPassword, newPassword);
             if (!changePasswordResult.Succeeded)
             {
                 foreach (var error in changePasswordResult.Errors)

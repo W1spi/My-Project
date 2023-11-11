@@ -7,6 +7,10 @@ namespace NLimit.Web.Models;
 
 public class RegisterViewModel : User
 {
+    [Required(ErrorMessage = "Поле [Дата рождения] является обязательным")]
+    [DataType(DataType.Date)]
+    public DateTime? BirthDate { get; set; }
+
     [Required(ErrorMessage = "Поле [Пароль] является обязательным")]
     [StringLength(100, ErrorMessage = "Длина поля [Пароль] не должна превышать 100 символов")]
     [DataType(DataType.Password)]

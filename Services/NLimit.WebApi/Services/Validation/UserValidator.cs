@@ -31,6 +31,12 @@ public class UserValidator : AbstractValidator<User>
             .MaximumLength(30)
             .WithMessage("The length of the surname should not be more than 30");
 
+        RuleFor(u => u.BirthDate)
+            .NotNull()
+            .WithMessage("birthdate must not be null or empty")
+            .NotEmpty()
+            .WithMessage("birthdate must not be null or empty");
+
         RuleFor(u => u.Patronymic)
             .MaximumLength(30)
             .WithMessage("The length of the patronymic should not be more than 30");

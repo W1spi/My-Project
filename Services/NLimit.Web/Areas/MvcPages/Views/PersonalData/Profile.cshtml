@@ -2,21 +2,16 @@
 @model PersonalAccountViewModel
 
 @{
-    ViewData["Title"] = "Profile";
+    ViewData["Title"] = "Основная информация";
     ViewData["ActivePage"] =  ManageNavigationPages.Profile;
 }
 
-<div class="row">
-    @if (Model.UpdatedSuccessfully)
-    {
-        <div class="alert alert-success alert-dismissible fade show d-flex align-items-center" role="alert">
-            Данные успешно обновлены!
-            <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
-            </button>
-        </div>
+<h3 class="mb-3">@ViewData["Title"]</h3>
 
-        Model.UpdatedSuccessfully = false;
-    }
+<div class="row">
+
+    <partial name="_PersonalDataChangeStatusPartial" />
+
     <div class="col-md-12">
         <form asp-controller="PersonalData" asp-action="Profile" class="row g-4" id="profile-form" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
@@ -56,7 +51,7 @@
                 <span asp-validation-for="Address" class="text-danger"></span>
             </div>
 
-            <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-info">Save</button>
+            <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-info">Сохранить</button>
         </form>
     </div>
 </div>

@@ -1,0 +1,74 @@
+﻿@model PersonalAccountViewModel
+
+@{
+    if (Model.UpdatedSuccessfully)
+    {
+        <div class="alert alert-success alert-dismissible fade show d-flex align-items-center" role="alert">
+            Данные успешно обновлены!
+            <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
+            </button>
+        </div>
+
+        Model.UpdatedSuccessfully = false;
+    }
+    if (Model.ModelIsValid == ModelStates.ValidNewEmail)
+    {
+        <div class="alert alert-success alert-dismissible fade show d-flex align-items-center" role="alert">
+            Email успешно изменен.
+            <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
+            </button>
+        </div>
+
+        Model.ModelIsValid = ModelStates.None;
+    }
+    if (Model.ModelIsValid == ModelStates.InvalidNewEmail)
+    {
+        <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
+            Email не был изменен, проверьте корректность введенных данных.
+            <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
+            </button>
+        </div>
+
+        Model.ModelIsValid = ModelStates.None;
+    }
+    if (Model.ModelIsValid == ModelStates.EmailsMatch)
+    {
+        <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
+            Email не был изменен (введенный email совпадает с текущим).
+            <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
+            </button>
+        </div>
+
+        Model.ModelIsValid = ModelStates.None;
+    }
+    if (Model.ModelIsValid == ModelStates.ConfirmationEmail)
+    {
+        <div class="alert alert-info alert-dismissible fade show d-flex align-items-center" role="alert">
+            На ваш email отправлен запрос на подтверждение.
+            <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
+            </button>
+        </div>
+
+        Model.ModelIsValid = ModelStates.None;
+    }
+    if (Model.ModelIsValid == ModelStates.PasswordChanged)
+    {
+        <div class="alert alert-success alert-dismissible fade show d-flex align-items-center" role="alert">
+            Пароль успешно обновлен!
+            <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
+            </button>
+        </div>
+
+        Model.ModelIsValid = ModelStates.None;
+    }
+    if (Model.ModelIsValid == ModelStates.PasswordChangeError)
+    {
+        <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
+            Пароль не был обновлен, проверьте корректность введенных данных!
+            <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
+            </button>
+        </div>
+
+        Model.ModelIsValid = ModelStates.None;
+    }
+}
