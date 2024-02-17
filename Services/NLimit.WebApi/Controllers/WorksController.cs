@@ -16,6 +16,7 @@ namespace NLimit.WebApi.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[AllowAnonymous]
 //[Authorize]
 public class WorksController : ControllerBase
 {

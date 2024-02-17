@@ -1,4 +1,6 @@
 ﻿using Data.NLimit.Common.EntitiesModels.SqlServer;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
@@ -14,11 +16,10 @@ public class PersonalAccountViewModel : User
     [DisplayName("Дата рождения")]
     public DateTime? BirthDate { get; set; }
 
-    [Required(ErrorMessage = "Поле [{0}] является обязательным")]
     [StringLength(50, ErrorMessage = "Длина поля [{0}] должна быть не больше 50")]
     [RegularExpression(@"^[-\w.]+@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,4}$", ErrorMessage = "Некорректное значение в поле [{0}]")]
     [DisplayName("Новый email")]
-    public string NewEmail { get; set; }
+    public string? NewEmail { get; set; }
 
     [Required(ErrorMessage = "Поле [{0}] является обязательным")]
     [DataType(DataType.Password)]
@@ -53,12 +54,16 @@ public class PersonalAccountViewModel : User
     public bool UpdatedSuccessfully { get; set; }
 
     [JsonIgnore]
-    public ModelStates ModelIsValid { get; set; }
+    public string? ReturnUrl { get; set; }
+
+    [JsonIgnore]
+    public AccountUpdateStatus? AccountUpdateStatus { get; set; }
 }
 
-public enum ModelStates
+public enum AccountUpdateStatus
 {
-    None,
+    Success = 1,
+    NLimitUpdateError,
 
     InvalidNewEmail,
     ValidNewEmail,
@@ -67,7 +72,11 @@ public enum ModelStates
 
     PasswordChanged,
     PasswordChangeError,
+    PasswordsDontMatch,
+    CurrentPasswordIsIncorrect,
 
     ValidPassword,
-    InvalidPassword
+    InvalidPassword,
+
+    None
 }

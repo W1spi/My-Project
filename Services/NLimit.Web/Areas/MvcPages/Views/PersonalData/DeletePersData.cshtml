@@ -18,15 +18,13 @@
         <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
         @if (Model.RequirePassword)
         {
-            if (Model.ModelIsValid == ModelStates.InvalidPassword)
+            if (Model.AccountUpdateStatus == AccountUpdateStatus.InvalidPassword)
             {
                 <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
                     Введен некорректный пароль! Повторите попытку.
                     <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
                     </button>
                 </div>
-
-                Model.ModelIsValid = ModelStates.None;
             }
 
             <div class="mb-3">

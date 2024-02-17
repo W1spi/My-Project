@@ -3,7 +3,9 @@ using Data.NLimit.Common.EntitiesModels.SqlServer;
 using FluentValidation; // кастомная валидация
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using NLimit.Web.AppServices;
+using NLimit.Web.ClassServices;
 using NLimit.Web.Data;
 using NLimit.Web.Models;
 using Org.BouncyCastle.Asn1.X509.SigI;
@@ -35,9 +37,8 @@ namespace NLimit.Web.Areas.MvcPages.Controllers
             this.validator = validator;
         }
 
-
         [HttpGet]
-        public async Task<IActionResult> Profile()
+        public async Task<IActionResult> Profile(AccountUpdateStatus? status)
         {
             var identityUser = await userManager.GetUserAsync(User);
 
@@ -63,7 +64,8 @@ namespace NLimit.Web.Areas.MvcPages.Controllers
                 BirthDate = user.BirthDate,
                 MobilePhone = user.MobilePhone!,
                 Address = user.Address!,
-                IsEmailConfirmed = identityUser.EmailConfirmed
+                IsEmailConfirmed = identityUser.EmailConfirmed,
+                AccountUpdateStatus = status ?? AccountUpdateStatus.None
             };
 
             return View("~/Areas/MvcPages/Views/PersonalData/Profile.cshtml", model);
@@ -80,7 +82,8 @@ namespace NLimit.Web.Areas.MvcPages.Controllers
             var identityUser = await userManager.GetUserAsync(User);
             model.UserId = identityUser.Id;
 
-            var validationResult = await validator.ValidateAsync(model);
+            // позже вернуться к такому виду валидации, пока не работает
+            /*var validationResult = await validator.ValidateAsync(model);
             if (!validationResult.IsValid)
             {
                 // берет первую ошибку валидации
@@ -88,56 +91,52 @@ namespace NLimit.Web.Areas.MvcPages.Controllers
                              select errors.ErrorMessage)
                             .First();
 
-                return View("~/Areas/MvcPages/Views/PersonalData/Profile.cshtml", model);
-            }
+                return RedirectToAction("~/Areas/MvcPages/Views/PersonalData/Profile.cshtml", model);
+            }*/
 
-            HttpStatusCode responseCode = await UpdateProfileUser(identityUser.Id, model.FirstName, model.Surname, model.Patronymic,
+            HttpResponseMessage response = await UpdateProfileUser(identityUser.Id, model.FirstName, model.Surname, model.Patronymic,
              model.BirthDate, model.MobilePhone, model.Address);
 
-            if (responseCode != HttpStatusCode.OK)
+            if (response.StatusCode != HttpStatusCode.OK)
             {
-                return BadRequest(responseCode.ToString() + " " + "Произошла ошибка при обновлении");
+                return RedirectToAction("Profile", new { Status = AccountUpdateStatus.NLimitUpdateError });
             }
 
-            model.UpdatedSuccessfully = true;
-            return View("~/Areas/MvcPages/Views/PersonalData/Profile.cshtml", model);
+            return RedirectToAction("Profile", new { Status = AccountUpdateStatus.Success });
         }
 
         [HttpGet]
-        public async Task<IActionResult> Email()
+        public async Task<IActionResult> Email(AccountUpdateStatus? status)
         {
-            //string userId = userManager.GetUserId(User)!;
             var identityUser = await userManager.GetUserAsync(User);
 
-            if (identityUser is not null)
-            {
-                // TODO: пока отталкиваюсь от того, что у пользака точно будет присутствовать запись в обеих БД
-                User? user = await GetUser(identityUser.Id);
-
-                if (user is null)
-                {
-                    return NotFound($"Unable to load user with ID '{identityUser.Id}'.");
-                }
-
-                var model = new PersonalAccountViewModel
-                {
-                    Email = user.Email!,
-                    IsEmailConfirmed = await userManager.IsEmailConfirmedAsync(identityUser)
-                };
-
-
-                return View("~/Areas/MvcPages/Views/PersonalData/Email.cshtml", model);
-            }
-            else
+            if (identityUser is  null)
             {
                 return NotFound($"Unable to load user with ID '{identityUser.Id}'.");
             }
+
+            // TODO: пока отталкиваюсь от того, что у пользака точно будет присутствовать запись в обеих БД
+            User? user = await GetUser(identityUser.Id);
+
+            if (user is null)
+            {
+                return NotFound($"Unable to load user with ID '{identityUser.Id}'.");
+            }
+
+            PersonalAccountViewModel model = new()
+            {
+                UserId = identityUser.Id,
+                Email = user.Email,
+                IsEmailConfirmed = identityUser.EmailConfirmed,
+                AccountUpdateStatus = status ?? AccountUpdateStatus.None
+            };
+
+            return View("~/Areas/MvcPages/Views/PersonalData/Email.cshtml", model);
         }
 
         [HttpPost]
         public async Task<IActionResult> ChangeEmail(string newEmail)
         {
-            PersonalAccountViewModel model = new();
             var identityUser = await userManager.GetUserAsync(User);
             var currentEmail = await userManager.GetEmailAsync(identityUser);
 
@@ -146,40 +145,31 @@ namespace NLimit.Web.Areas.MvcPages.Controllers
                 return NotFound($"Пользователь с id '{identityUser.Id}' не найден");
             }
 
-            if (newEmail == currentEmail)
+            if (newEmail is null)
             {
-                model.ModelIsValid = ModelStates.EmailsMatch;
-                model.Email = identityUser.Email;
-                model.IsEmailConfirmed = identityUser.EmailConfirmed;
-                return View("~/Areas/MvcPages/Views/PersonalData/Email.cshtml", model);
+                return RedirectToAction("Email", new { Status = AccountUpdateStatus.InvalidNewEmail });
             }
 
-            if (newEmail is null || !ModelState.IsValid)
+            if (newEmail == currentEmail)
             {
-                model.ModelIsValid = ModelStates.InvalidNewEmail;
-                model.Email = identityUser.Email;
-                model.IsEmailConfirmed = identityUser.EmailConfirmed;
-                return View("~/Areas/MvcPages/Views/PersonalData/Email.cshtml", model);
+                return RedirectToAction("Email", new { Status = AccountUpdateStatus.EmailsMatch });
             }
 
             // обновляем email в БД NLimit
-            var responseCode = await UpdateEmail(identityUser.Id, newEmail);
+            var response = await UpdateEmail(identityUser.Id, newEmail);
 
-            if (responseCode != HttpStatusCode.NoContent.ToString())
+            if (response.StatusCode != HttpStatusCode.OK)
             {
-                model.ModelIsValid = ModelStates.InvalidNewEmail;
-                return View("~/Areas/MvcPages/Views/PersonalData/Email.cshtml", model);
+                return RedirectToAction("Email", new { Status = AccountUpdateStatus.InvalidNewEmail });
             }
 
             // если все ок, то обновляем email в БД Identity, стафим флаг IsConfirmed = false и кидаем алерт об успехе
-            model.ModelIsValid = ModelStates.ValidNewEmail;
-            model.IsEmailConfirmed = false;
-            model.Email = newEmail;
+
             identityUser.EmailConfirmed = false;
 
             await UpdateIdentityEmail(identityUser, newEmail);
 
-            return View("~/Areas/MvcPages/Views/PersonalData/Email.cshtml", model);
+            return RedirectToAction("Email", new { Status = AccountUpdateStatus.ValidNewEmail });
         }
 
         //[HttpGet]
@@ -203,18 +193,11 @@ namespace NLimit.Web.Areas.MvcPages.Controllers
                 $"Добрый день! Вам направлено тестовое подтверждения. " +
                 $"Пожалуйста, подтвердите ваш новый email, перейдя по ссылке: <a href='{callbackUrl}'>link</a>");
 
-            PersonalAccountViewModel model = new()
-            {
-                ModelIsValid = ModelStates.ConfirmationEmail,
-                Email = identityUser.Email
-            };
-
-            model.ModelIsValid = ModelStates.ConfirmationEmail;
-            return View("~/Areas/MvcPages/Views/PersonalData/Email.cshtml", model);
+            return RedirectToAction("Email", new { Status = AccountUpdateStatus.ConfirmationEmail });
         }
 
         [HttpGet]
-        public async Task<IActionResult> ChangePassword()
+        public async Task<IActionResult> ChangePassword(AccountUpdateStatus? status)
         {
             string userId = userManager.GetUserId(User)!;
 
@@ -232,7 +215,8 @@ namespace NLimit.Web.Areas.MvcPages.Controllers
 
             PersonalAccountViewModel model = new()
             {
-                ModelIsValid = ModelStates.None
+                UserId = userId,
+                AccountUpdateStatus = status ?? AccountUpdateStatus.None
             };
 
             return View("~/Areas/MvcPages/Views/PersonalData/ChangePassword.cshtml", model);
@@ -241,39 +225,40 @@ namespace NLimit.Web.Areas.MvcPages.Controllers
         [HttpPost]
         public async Task<IActionResult> ChangePassword(string currentPassword, string newPassword, string confirmPassword)
         {
-            PersonalAccountViewModel model = new();
-
-            if (!ModelState.IsValid)
-            {
-                model.ModelIsValid = ModelStates.PasswordChangeError;
-                return View("~/Areas/MvcPages/Views/PersonalData/ChangePassword.cshtml", model);
-            }
-
             var identityUser = await userManager.GetUserAsync(User);
             if (identityUser is null)
             {
                 return NotFound($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
             }
 
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction("ChangePassword", new { Status = AccountUpdateStatus.PasswordChangeError });
+            }
+
+            if (!await userManager.CheckPasswordAsync(identityUser, currentPassword))
+            {
+                return RedirectToAction("ChangePassword", new { Status = AccountUpdateStatus.CurrentPasswordIsIncorrect });
+            }
+
+            if (!newPassword.Equals(confirmPassword))
+            {
+                return RedirectToAction("ChangePassword", new { Status = AccountUpdateStatus.PasswordsDontMatch });
+            }
+
             var changePasswordResult = await userManager.ChangePasswordAsync(identityUser, currentPassword, newPassword);
             if (!changePasswordResult.Succeeded)
             {
-                foreach (var error in changePasswordResult.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
-
-                model.ModelIsValid = ModelStates.PasswordChangeError;
-                return View("~/Areas/MvcPages/Views/PersonalData/ChangePassword.cshtml", model);
+                return RedirectToAction("ChangePassword", new { Status = AccountUpdateStatus.PasswordChangeError });
             }
 
             await signInManager.RefreshSignInAsync(identityUser);
             logger.LogInformation("User changed their password successfully.");
 
-            model.ModelIsValid = ModelStates.PasswordChanged;
-            return View("~/Areas/MvcPages/Views/PersonalData/ChangePassword.cshtml", model);
+            return RedirectToAction("ChangePassword", new { Status = AccountUpdateStatus.PasswordChanged });
         }
 
+        // проработать в будущем, не актуализировал с момента первой собственной реализации
         [HttpGet]
         public async Task<IActionResult> PersData()
         {
@@ -295,6 +280,7 @@ namespace NLimit.Web.Areas.MvcPages.Controllers
             return View("~/Areas/MvcPages/Views/PersonalData/PersData.cshtml");
         }
 
+        // проработать в будущем, не актуализировал с момента первой собственной реализации
         [HttpPost]
         public async Task<IActionResult> DownloadPersData()
         {
@@ -332,6 +318,7 @@ namespace NLimit.Web.Areas.MvcPages.Controllers
             return new FileContentResult(JsonSerializer.SerializeToUtf8Bytes(personalData), "application/json");
         }
 
+        // проработать в будущем, не актуализировал с момента первой собственной реализации
         [HttpGet]
         public async Task<IActionResult> DeletePersData()
         {
@@ -350,6 +337,7 @@ namespace NLimit.Web.Areas.MvcPages.Controllers
             return View("~/Areas/MvcPages/Views/PersonalData/DeletePersData.cshtml", model);
         }
 
+        // проработать в будущем, не актуализировал с момента первой собственной реализации
         [HttpPost]
         public async Task<IActionResult> DeletePersData(string currentPassword)
         {
@@ -365,7 +353,7 @@ namespace NLimit.Web.Areas.MvcPages.Controllers
             if (!await userManager.CheckPasswordAsync(identityUser, currentPassword))
             {
                 //ModelState.AddModelError(string.Empty, "Incorrect password.");
-                model.ModelIsValid = ModelStates.InvalidPassword;
+                model.AccountUpdateStatus = AccountUpdateStatus.InvalidPassword;
                 model.RequirePassword = await userManager.HasPasswordAsync(identityUser);
                 return View("~/Areas/MvcPages/Views/PersonalData/DeletePersData.cshtml", model);
             }
@@ -424,7 +412,7 @@ namespace NLimit.Web.Areas.MvcPages.Controllers
             return responseCode;
         }
 
-        private async Task<HttpStatusCode> UpdateProfileUser(string id, string firstName, string surname, string? patronymic,
+        private async Task<HttpResponseMessage> UpdateProfileUser(string id, string firstName, string surname, string? patronymic,
         DateTime? birthDate, string? mobilePhone, string? address)
         {
             string uri = $"api/Users/UpdateProfileUser/{id}?firstName={firstName}&surname={surname}&patronymic={patronymic}" +
@@ -438,12 +426,10 @@ namespace NLimit.Web.Areas.MvcPages.Controllers
 
             HttpResponseMessage response = await client.SendAsync(request);
 
-            var responseCode = response.StatusCode;
-
-            return responseCode;
+            return response;
         }
 
-        private async Task<string> UpdateEmail(string id, string newEmail)
+        private async Task<HttpResponseMessage> UpdateEmail(string id, string newEmail)
         {
             string uri = $"api/Users/UpdateEmail/{id}?newEmail={newEmail}";
 
@@ -455,9 +441,7 @@ namespace NLimit.Web.Areas.MvcPages.Controllers
 
             HttpResponseMessage response = await client.SendAsync(request);
 
-            var responseCode = response.StatusCode.ToString();
-
-            return responseCode;
+            return response;
         }
     }
 }

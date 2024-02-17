@@ -1,74 +1,76 @@
 ﻿@model PersonalAccountViewModel
 
 @{
-    if (Model.UpdatedSuccessfully)
+    if (Model.AccountUpdateStatus == AccountUpdateStatus.Success)
     {
         <div class="alert alert-success alert-dismissible fade show d-flex align-items-center" role="alert">
-            Данные успешно обновлены!
+            Данные успешно обновлены.
             <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
             </button>
         </div>
-
-        Model.UpdatedSuccessfully = false;
     }
-    if (Model.ModelIsValid == ModelStates.ValidNewEmail)
+    if (Model.AccountUpdateStatus == AccountUpdateStatus.ValidNewEmail)
     {
         <div class="alert alert-success alert-dismissible fade show d-flex align-items-center" role="alert">
             Email успешно изменен.
             <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
             </button>
         </div>
-
-        Model.ModelIsValid = ModelStates.None;
     }
-    if (Model.ModelIsValid == ModelStates.InvalidNewEmail)
+    if (Model.AccountUpdateStatus == AccountUpdateStatus.InvalidNewEmail)
     {
         <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
             Email не был изменен, проверьте корректность введенных данных.
             <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
             </button>
         </div>
-
-        Model.ModelIsValid = ModelStates.None;
     }
-    if (Model.ModelIsValid == ModelStates.EmailsMatch)
+    if (Model.AccountUpdateStatus == AccountUpdateStatus.EmailsMatch)
     {
         <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
             Email не был изменен (введенный email совпадает с текущим).
             <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
             </button>
         </div>
-
-        Model.ModelIsValid = ModelStates.None;
     }
-    if (Model.ModelIsValid == ModelStates.ConfirmationEmail)
+    if (Model.AccountUpdateStatus == AccountUpdateStatus.ConfirmationEmail)
     {
         <div class="alert alert-info alert-dismissible fade show d-flex align-items-center" role="alert">
             На ваш email отправлен запрос на подтверждение.
             <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
             </button>
         </div>
-
-        Model.ModelIsValid = ModelStates.None;
     }
-    if (Model.ModelIsValid == ModelStates.PasswordChanged)
+    if (Model.AccountUpdateStatus == AccountUpdateStatus.PasswordChanged)
     {
         <div class="alert alert-success alert-dismissible fade show d-flex align-items-center" role="alert">
-            Пароль успешно обновлен!
+            Пароль успешно обновлен.
             <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
             </button>
         </div>
-
-        Model.ModelIsValid = ModelStates.None;
     }
-    if (Model.ModelIsValid == ModelStates.PasswordChangeError)
+    if (Model.AccountUpdateStatus == AccountUpdateStatus.PasswordChangeError)
     {
         <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
-            Пароль не был обновлен, проверьте корректность введенных данных!
+            Пароль не был обновлен, проверьте корректность введенных данных.
             <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
             </button>
         </div>
-
-        Model.ModelIsValid = ModelStates.None;
+    }
+    if (Model.AccountUpdateStatus == AccountUpdateStatus.PasswordsDontMatch)
+    {
+        <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
+            Введенные пароли не совпадают.
+            <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
+            </button>
+        </div>
+    }
+    if (Model.AccountUpdateStatus == AccountUpdateStatus.CurrentPasswordIsIncorrect)
+    {
+        <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
+            Текущий пароль некорректен.
+            <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
+            </button>
+        </div>
     }
 }

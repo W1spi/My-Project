@@ -82,7 +82,7 @@ if (env is not null)
     });
 }
 
-// MapControllerRoute() используется для создания одного маршрута
+// MapControllerRoute() - переводит по указанному маршруту, если пользователь не укажет свои данные маршрута
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}"); //"{controller=Home}/{action=Index}/{id?}");

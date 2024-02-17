@@ -40,6 +40,10 @@ public class WorkValidator : AbstractValidator<Work>
             .WithMessage("The length of the workStatus should not be more than 30");
 
         RuleFor(w => w.Executor)
+            .NotNull()
+            .WithMessage("executor must not be null or empty")
+            .NotEmpty()
+            .WithMessage("executor must not be null or empty")
             .MaximumLength(50)
             .WithMessage("The length of the executor should not be more than 50");
 
@@ -52,10 +56,18 @@ public class WorkValidator : AbstractValidator<Work>
             .WithMessage("The length of the feedbackTeacher should not be more than 255");
 
         RuleFor(w => w.UserId)
+            .NotNull()
+            .WithMessage("userId must not be null or empty")
+            .NotEmpty()
+            .WithMessage("userId must not be null or empty")
             .MaximumLength(50)
             .WithMessage("The length of the userId should not be more than 50");
 
         RuleFor(w => w.CourseId)
+            .NotNull()
+            .WithMessage("courseId must not be null or empty")
+            .NotEmpty()
+            .WithMessage("courseId must not be null or empty")
             .MaximumLength(50)
             .WithMessage("The length of the courseId should not be more than 50");
     }

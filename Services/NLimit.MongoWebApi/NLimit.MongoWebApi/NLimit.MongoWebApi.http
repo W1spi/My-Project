@@ -1,0 +1,6 @@
+@NLimit.MongoWebApi_HostAddress = http://localhost:5167
+
+GET {{NLimit.MongoWebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

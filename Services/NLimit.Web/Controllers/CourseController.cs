@@ -1,5 +1,6 @@
 ﻿using Data.NLimit.Common.DataContext.SqlServer;
 using Data.NLimit.Common.EntitiesModels.SqlServer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -59,21 +60,26 @@ namespace NLimit.Web.Controllers
                 return RedirectToAction("Login", "Identity");
             }
 
-            IEnumerable<AboutWorkViewModel> allWorks = await GetWorks(userId);
-
-            AboutWorkViewModel workModel = new();
+            IEnumerable<Work> allWorks = await GetWorks(userId);
 
             if (!allWorks.IsNullOrEmpty())
             {
-                workModel.WorkIsPresent = true;
-                workModel.AllWorks = allWorks;
+                AboutWorkViewModel workModel = new()
+                {
+                    WorkIsPresent = true
+                };
+
+                return View(workModel);
             }
             else
             {
-                workModel.WorkIsPresent = false;
-            }
+                AboutWorkViewModel workModel = new()
+                {
+                    WorkIsPresent = false
+                };
 
-            return View(workModel);
+                return View(workModel);
+            }
         }
 
         [HttpGet]
@@ -115,7 +121,7 @@ namespace NLimit.Web.Controllers
             return View();
         }
 
-        private async Task<IEnumerable<AboutWorkViewModel>> GetWorks(string? userId)
+        private async Task<IEnumerable<Work>> GetWorks(string? userId)
         {
             string uri;
 
@@ -123,11 +129,11 @@ namespace NLimit.Web.Controllers
 
             if (string.IsNullOrEmpty(userId))
             {
-                uri = "api/Works";
+                uri = "api/Works/GetAllWorks";
             }
             else
             {
-                uri = $"api/Works?userId={userId}";
+                uri = $"api/Works/GetInfoAboutWork?id={userId}";
             }
 
             HttpRequestMessage request = new(
@@ -136,7 +142,7 @@ namespace NLimit.Web.Controllers
 
             HttpResponseMessage response = await client.SendAsync(request);
 
-            IEnumerable<AboutWorkViewModel>? works = await response.Content.ReadFromJsonAsync<IEnumerable<AboutWorkViewModel>>();
+            IEnumerable<Work>? works = await response.Content.ReadFromJsonAsync<IEnumerable<Work>>();
 
             return works;
         }

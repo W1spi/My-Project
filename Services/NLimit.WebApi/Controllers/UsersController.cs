@@ -71,7 +71,7 @@ namespace NLimit.WebApi.Controllers
             {
                 // берет первую ошибку валидации
                 var query = (from errors in validationResult.Errors
-                            select errors.ErrorMessage)
+                             select errors.ErrorMessage)
                             .First();
 
                 return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, query));
