@@ -9,7 +9,7 @@ public class EmailService
     {
         var emailMessage = new MimeMessage();
 
-        emailMessage.From.Add(new MailboxAddress("Тестовый запуск", "iv.stepanishchev@yandex.ru"));
+        emailMessage.From.Add(new MailboxAddress("Тестовый запуск", "r.r.53@bk.ru"));
         emailMessage.To.Add(new MailboxAddress(string.Empty, email));
         emailMessage.Subject = subject;
         emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html)
@@ -19,8 +19,9 @@ public class EmailService
 
         using (var client = new SmtpClient())
         {
-            await client.ConnectAsync("smtp.yandex.ru", 465, true); // 25 - без шифрования, 465 - с шифрованием
-            await client.AuthenticateAsync("iv.stepanishchev@yandex.ru", "Verasila090319");
+            //await client.ConnectAsync("smtp.yandex.ru", 465, true); // 25 - без шифрования, 465 - с шифрованием
+            await client.ConnectAsync("smtp.mail.ru", 465, true); // 25 - без шифрования, 465 - с шифрованием
+            await client.AuthenticateAsync("r.r.53@bk.ru", "UnCK9hUxqLMwm80Urbr7");
             await client.SendAsync(emailMessage);
 
             await client.DisconnectAsync(true);

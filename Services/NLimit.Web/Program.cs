@@ -24,18 +24,12 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddNLimitContext();
 
-builder.Services.AddHttpClient(name: "Northwind.WebApi",
-    configureClient: options =>
-    {
-        options.BaseAddress = new Uri("https://localhost:5002/");
-        options.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json", 1.0));
-    });
 
 builder.Services.AddHttpClient(
     name: "NLimit.WebApi",
     configureClient: options =>
     {
-        options.BaseAddress = new Uri("https://localhost:7031/");
+        options.BaseAddress = new Uri("https://localhost:7027/");
         options.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json", 1.0));
     });
 

@@ -14,7 +14,7 @@ public class NLimitContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        string connection = @"Data Source=.;" +
+        string connection = @"Data Source=(localdb)\MSSQLLocalDB;" +
             "Initial Catalog=NLimit;" +
             "Integrated Security=true;" +
             "Trust Server Certificate=true;" +

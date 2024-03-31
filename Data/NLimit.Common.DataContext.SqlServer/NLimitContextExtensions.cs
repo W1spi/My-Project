@@ -8,7 +8,7 @@ public static class NLimitContextExtensions
 {
     public static IServiceCollection AddNLimitContext(this IServiceCollection services)
     {
-        string connectionString = @"Data Source=.;" +
+        string connectionString = @"Data Source=(localdb)\MSSQLLocalDB;" +
             "Initial Catalog=NLimit;" +
             "Integrated Security=true;" +
             "Trust Server Certificate=true;" +

@@ -9,6 +9,10 @@ namespace NLimit.Web.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
+            Database.SetConnectionString(@"Data Source=(localdb)\MSSQLLocalDB;" +
+                "Initial Catalog=master;" +
+                "Integrated Security=true;" +
+                "Trust Server Certificate=false;");
         }
     }
 }
