@@ -1,53 +1,59 @@
 ﻿@using NLimit.Web.ClassServices
 
-<div class="col-sm-3 col-md-2">
-    <button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
-        Меню
-    </button>
+@{
+    string containerClass = ViewData["ContainerClass"]?.ToString() ?? "bg-light";
+}
 
-    <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="offcanvasExampleLabel">NLimit menu</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body">
-           <!-- <div>
-                Тут можно разместить какой-нибудь текст
-            </div> -->
-            <div class="btn-group-vertical col-md-12">
-                <ul class="nav nav-pills flex-column col-md-12">
-                    <!-- <li class="nav-item mt-3">
-                        <a class="nav-link @ManageNavigationPages.MyCoursesNavClass(ViewContext) col-md-12" asp-controller="Course" asp-action="MyCourses" method="get"><strong>Мои курсы</strong></a>
-                    </li>
-                    <li class="nav-item mt-3">
-                        <a class="nav-link @ManageNavigationPages.AllCoursesNavClass(ViewContext) col-md-12" asp-controller="Course" asp-action="AllCourses" method="get"><strong>Все курсы</strong></a>
-                    </li> -->
-                    <li class="nav-item mt-3">
-                        <a class="nav-link @ManageNavigationPages.TasksNavClass(ViewContext) col-md-12" asp-controller="Course" asp-action="Works" asp-route-activeCourse="@ViewData["ActiveCourse"]" method="get"><strong>Задания</strong></a>
-                    </li>
-                    <li class="nav-item mt-3">
-                        <a class="nav-link @ManageNavigationPages.AttestationsNavClass(ViewContext) col-md-12" asp-controller="Course" asp-action="Attestations" asp-route-activeCourse="@ViewData["ActiveCourse"]" method="get"><strong>Аттестации</strong></a>
-                    </li>
-                    <!-- <li class="nav-item mt-3">
-                        <a class="nav-link @ManageNavigationPages.CalendarNavClass(ViewContext) col-md-12" asp-controller="Course" asp-action="Calendar" method="get"><strong>Календарь</strong></a>
-                    </li> -->
-                    <li class="nav-item mt-3">
-                        <a class="nav-link @ManageNavigationPages.AboutCourseNavClass(ViewContext)" id="aboutCourse" asp-controller="Course" asp-action="AboutCourse" asp-route-activeCourse="@ViewData["ActiveCourse"]" method="get"><strong>О курсе</strong></a>
-                    </li>
-                </ul>
+<div class="p-4 @containerClass">
+    <div class="col-sm-3 col-md-2">
+        <button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
+            Меню
+        </button>
+
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="offcanvasExampleLabel">NLimit menu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
-            <!-- <div class="dropdown mt-3">
-                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                    Пример дропдауна
-                </button>
-                <ul class="dropdown-menu">
-                    <li>
-                        <a class="dropdown-item" asp-controller="" asp-action="">О курсе</a>
-                    </li>
-                    <li><a class="dropdown-item" asp-controller="" asp-action="">Another action</a></li>
-                    <li><a class="dropdown-item" asp-controller="" asp-action="">Something else here</a></li>
-                </ul>
-            </div> -->
+            <div class="offcanvas-body">
+                <!-- <div>
+                     Тут можно разместить какой-нибудь текст
+                 </div> -->
+                <div class="btn-group-vertical col-md-12">
+                    <ul class="nav nav-pills flex-column col-md-12">
+                        <!-- <li class="nav-item mt-3">
+                            <a class="nav-link @ManageNavigationPages.MyCoursesNavClass(ViewContext) col-md-12" asp-controller="Course" asp-action="MyCourses" method="get"><strong>Мои курсы</strong></a>
+                        </li>
+                        <li class="nav-item mt-3">
+                            <a class="nav-link @ManageNavigationPages.AllCoursesNavClass(ViewContext) col-md-12" asp-controller="Course" asp-action="AllCourses" method="get"><strong>Все курсы</strong></a>
+                        </li> -->
+                        <li class="nav-item mt-3">
+                            <a class="nav-link @ManageNavigationPages.TasksNavClass(ViewContext) col-md-12" asp-controller="Course" asp-action="Works" asp-route-activeCourse="@ViewData["ActiveCourse"]" method="get"><strong>Задания</strong></a>
+                        </li>
+                        <li class="nav-item mt-3">
+                            <a class="nav-link @ManageNavigationPages.AttestationsNavClass(ViewContext) col-md-12" asp-controller="Course" asp-action="Attestations" asp-route-activeCourse="@ViewData["ActiveCourse"]" method="get"><strong>Аттестации</strong></a>
+                        </li>
+                        <!-- <li class="nav-item mt-3">
+                            <a class="nav-link @ManageNavigationPages.CalendarNavClass(ViewContext) col-md-12" asp-controller="Course" asp-action="Calendar" method="get"><strong>Календарь</strong></a>
+                        </li> -->
+                        <li class="nav-item mt-3">
+                            <a class="nav-link @ManageNavigationPages.AboutCourseNavClass(ViewContext)" id="aboutCourse" asp-controller="Course" asp-action="AboutCourse" asp-route-activeCourse="@ViewData["ActiveCourse"]" method="get"><strong>О курсе</strong></a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- <div class="dropdown mt-3">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        Пример дропдауна
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" asp-controller="" asp-action="">О курсе</a>
+                        </li>
+                        <li><a class="dropdown-item" asp-controller="" asp-action="">Another action</a></li>
+                        <li><a class="dropdown-item" asp-controller="" asp-action="">Something else here</a></li>
+                    </ul>
+                </div> -->
+            </div>
         </div>
     </div>
 </div>
