@@ -24,7 +24,7 @@ namespace NLimit.Web.Controllers
             this.userManager = userManager;
         }
 
-        [HttpGet]
+        /*[HttpGet]
         public IActionResult MyCourses()
         {
             bool signUser = signInManager.IsSignedIn(User);
@@ -35,9 +35,9 @@ namespace NLimit.Web.Controllers
             }
 
             return View();
-        }
+        }*/
 
-        [HttpGet]
+        /*[HttpGet]
         public IActionResult AllCourses()
         {
             bool signUser = signInManager.IsSignedIn(User);
@@ -48,7 +48,7 @@ namespace NLimit.Web.Controllers
             }
 
             return View();
-        }
+        }*/
 
         [HttpGet]
         public async Task<IActionResult> Works(string? userId)
@@ -60,6 +60,9 @@ namespace NLimit.Web.Controllers
                 return RedirectToAction("Login", "Identity");
             }
 
+            var activeCourse = HttpContext.Session.GetString("ActiveCourse");
+            ViewData["ActiveCourse"] = activeCourse;
+
             IEnumerable<Work> allWorks = await GetWorks(userId);
 
             if (!allWorks.IsNullOrEmpty())
@@ -69,7 +72,18 @@ namespace NLimit.Web.Controllers
                     WorkIsPresent = true
                 };
 
-                return View(workModel);
+                if (activeCourse == "math")
+                {
+                    return View("Mathematic/MathWorks", workModel);
+                }
+                else if (activeCourse == "prog")
+                {
+                    return View("Programming/ProgWorks", workModel);
+                }
+                else
+                {
+                    return RedirectToAction("Login", "Identity");
+                }
             }
             else
             {
@@ -78,7 +92,18 @@ namespace NLimit.Web.Controllers
                     WorkIsPresent = false
                 };
 
-                return View(workModel);
+                if (activeCourse == "math")
+                {
+                    return View("Mathematic/MathWorks", workModel);
+                }
+                else if (activeCourse == "prog")
+                {
+                    return View("Programming/ProgWorks", workModel);
+                }
+                else
+                {
+                    return RedirectToAction("Login", "Identity");
+                }
             }
         }
 
@@ -92,10 +117,24 @@ namespace NLimit.Web.Controllers
                 return RedirectToAction("Login", "Identity");
             }
 
-            return View();
+            var activeCourse = HttpContext.Session.GetString("ActiveCourse");
+            ViewData["ActiveCourse"] = activeCourse;
+
+            if (activeCourse == "math")
+            {
+                return View("Mathematic/MathAttestations");
+            }
+            else if (activeCourse == "prog")
+            {
+                return View("Programming/ProgAttestations");
+            }
+            else
+            {
+                return RedirectToAction("Login", "Identity");
+            }
         }
 
-        [HttpGet]
+        /*[HttpGet]
         public IActionResult Calendar()
         {
             bool signUser = signInManager.IsSignedIn(User);
@@ -106,10 +145,10 @@ namespace NLimit.Web.Controllers
             }
 
             return View();
-        }
+        }*/
 
         [HttpGet]
-        public IActionResult AboutCourse()
+        public IActionResult AboutCourse(string? activeCourse)
         {
             bool signUser = signInManager.IsSignedIn(User);
 
@@ -118,7 +157,29 @@ namespace NLimit.Web.Controllers
                 return RedirectToAction("Login", "Identity");
             }
 
-            return View();
+            if (!string.IsNullOrEmpty(activeCourse))
+            {
+                HttpContext.Session.SetString("ActiveCourse", activeCourse);
+            }
+            else
+            {
+                activeCourse = HttpContext.Session.GetString("ActiveCourse");
+            }
+
+            ViewData["ActiveCourse"] = activeCourse;
+
+            if (activeCourse == "math")
+            {
+                return View("Mathematic/AboutMathCourse");
+            }
+            else if (activeCourse == "prog")
+            {
+                return View("Programming/AboutProgCourse");
+            }
+            else
+            {
+                return RedirectToAction("Login", "Identity");
+            }
         }
 
         private async Task<IEnumerable<Work>> GetWorks(string? userId)
