@@ -1,11 +1,17 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using NLimit.Web.Data;
 using Data.NLimit.Common.DataContext.SqlServer;
 using System.Net.Http.Headers; // MediaTypeWithQualityHeaderValue
 using System.Security.Principal;
 using Microsoft.Extensions.FileProviders;
 using NLimit.Common.DataContext.SqlServer;
+using NLimit.Web.Data.DataContext;
+using NLimit.Web.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Data.NLimit.Common.EntitiesModels.SqlServer;
+using FluentValidation;
+using Microsoft.AspNet.Identity;
+using NLimit.Web.ClassServices.EntityValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +38,9 @@ builder.Services.AddHttpClient(
         options.BaseAddress = new Uri("https://localhost:7027/");
         options.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json", 1.0));
     });
+
+// кастомная валидация
+builder.Services.AddScoped<IValidator<PersonalAccountViewModel>, PersonalAccountValidator>();
 
 var app = builder.Build();
 IHostEnvironment? env = app.Services.GetService<IHostEnvironment>();
@@ -67,10 +76,12 @@ if (env is not null)
     });
 }
 
-// MapControllerRoute() используется для создания одного маршрута
+// MapControllerRoute() - переводит по указанному маршруту, если пользователь не укажет свои данные маршрута
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}"); //"{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
+
+
 
 app.Run();

@@ -1,70 +1,69 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Data.NLimit.Common.EntitiesModels.SqlServer;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace NLimit.Web.Models;
 
-public class PersonalAccountViewModel
+public class PersonalAccountViewModel : User
 {
     // TODO: создать класс ApplicationUser и настроить ту модель вместо IdentityUser
 
-    public string Id { get; set; }
-
-    [Required(ErrorMessage = $"Поле является обязательным")]
-    public string FirstName { get; set; }
-
-    [Required]
-    public string Surname { get; set; }
-
-    public string? Patronymic { get; set; }
-
+    [Required(ErrorMessage = "Поле [{0}] является обязательным")]
+    [DataType(DataType.Date)]
+    [DisplayName("Дата рождения")]
     public DateTime? BirthDate { get; set; }
 
-    //[Required]
-    [MaxLength(24)]
-    public string Email { get; set; }
-
-    [MaxLength(60)]
-    public string? Address { get; set; }
-
-    [MaxLength(24)]
-    public string? MobilePhone { get; set; }
-
-    public bool IsEmailConfirmed { get; set; }
-
-    [Required]
-    [DataType(DataType.Password)]
-    public string CurrentPassword { get; set; }
-
-    public bool RequirePassword { get; set; }
-
-    // флаг, указаывающий были ли обновлены данные 
-    public bool UpdatedSuccessfully { get; set; }
-
-    [EmailAddress]
-    [Display(Name = "New email")]
+    [StringLength(50, ErrorMessage = "Длина поля [{0}] должна быть не больше 50")]
+    [RegularExpression(@"^[-\w.]+@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,4}$", ErrorMessage = "Некорректное значение в поле [{0}]")]
+    [DisplayName("Новый email")]
     public string? NewEmail { get; set; }
 
-    public ModelStates ModelIsValid { get; set; } = ModelStates.None;
-
-    [Required]
+    [Required(ErrorMessage = "Поле [{0}] является обязательным")]
     [DataType(DataType.Password)]
-    [Display(Name = "Current password")]
-    public string OldPassword { get; set; }
+    [JsonIgnore]
+    [Display(Name = "Текущий пароль")]
+    public string CurrentPassword { get; set; }
 
-    [Required]
-    [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+    [Required(ErrorMessage = "Поле [{0}] является обязательным")]
+    [StringLength(100, ErrorMessage = "Поле [{0}] должно содержать не менее {2} и не более {1} символов", MinimumLength = 6)]
     [DataType(DataType.Password)]
-    [Display(Name = "New password")]
+    [Display(Name = "Новый пароль")]
+    [Compare("ConfirmPassword", ErrorMessage = "Введенное значение не совпадает со значением поля [Повторите новый пароль]")]
+    [JsonIgnore]
     public string NewPassword { get; set; }
 
+    [Required(ErrorMessage = "Поле [{0}] является обязательным")]
+    [StringLength(100, ErrorMessage = "Поле [{0}] должно содержать не менее {2} и не более {1} символов", MinimumLength = 6)]
     [DataType(DataType.Password)]
-    [Display(Name = "Confirm new password")]
-    [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
+    [Display(Name = "Повторите новый пароль")]
+    [Compare("NewPassword", ErrorMessage = "Введенное значение не совпадает со значением поля [Новый пароль]")]
+    [JsonIgnore]
     public string ConfirmPassword { get; set; }
+
+    [JsonIgnore]
+    public bool RequirePassword { get; set; }
+
+    [JsonIgnore]
+    public bool IsEmailConfirmed { get; set; }
+
+    // флаг, указаывающий были ли обновлены данные 
+    [JsonIgnore]
+    public bool UpdatedSuccessfully { get; set; }
+
+    [JsonIgnore]
+    public string? ReturnUrl { get; set; }
+
+    [JsonIgnore]
+    public AccountUpdateStatus? AccountUpdateStatus { get; set; }
 }
 
-public enum ModelStates
+public enum AccountUpdateStatus
 {
-    None,
+    Success = 1,
+    NLimitUpdateError,
 
     InvalidNewEmail,
     ValidNewEmail,
@@ -73,7 +72,11 @@ public enum ModelStates
 
     PasswordChanged,
     PasswordChangeError,
+    PasswordsDontMatch,
+    CurrentPasswordIsIncorrect,
 
     ValidPassword,
-    InvalidPassword
+    InvalidPassword,
+
+    None
 }

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Data.NLimit.Common.EntitiesModels.SqlServer;
 
@@ -36,9 +37,11 @@ public class Work
     public string? CourseId { get; set; }
 
     [ForeignKey("UserId")]
-    public virtual User User { get; set; }
+    [JsonIgnore]
+    public virtual User? User { get; set; }
 
     [ForeignKey("CourseId")]
-    public virtual Course Course { get; set; }
+    [JsonIgnore]
+    public virtual Course? Course { get; set; }
 
 }

@@ -4,311 +4,214 @@ using Data.NLimit.Common.EntitiesModels.SqlServer;
 using System.Net;
 using System.ComponentModel.DataAnnotations;
 using NLimit.WebApi.Repositoires.Users;
+using LibraryOfUsefulClasses.Extensions;
+using Microsoft.AspNetCore.Authorization;
+using NLimit.WebApi.Services.Middleware;
+using NLimit.WebApi.Services.ResponseTemplates;
+using Swashbuckle.AspNetCore.Filters;
+using System.Web.WebPages;
+using FluentValidation;
+using System.ComponentModel;
 
 namespace NLimit.WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize]
     public class UsersController : ControllerBase
     {
         private readonly IUserRepository repo;
+        private readonly IValidator<User> validator;
 
-        public UsersController (IUserRepository repo)
+        public UsersController(IUserRepository repo, IValidator<User> validator)
         {
             this.repo = repo;
+            this.validator = validator;
         }
 
-        [HttpGet]
+        [HttpGet("GetAllUsers")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<User>))]
-        public async Task<IEnumerable<User>> GetUsers (string? firstName)
+        public async Task<IEnumerable<User>> GetUsers(string? firstName)
         {
-            if (string.IsNullOrEmpty(firstName)) 
+            if (string.IsNullOrEmpty(firstName))
             {
                 return await repo.RetrieveAllAsync();
             }
-            else
-            {
-                return (await repo.RetrieveAllAsync())
+
+            return (await repo.RetrieveAllAsync())
                     .Where(s => s.FirstName == firstName);
-            }
         }
 
-        [HttpGet("{id}", Name = nameof(GetUsers))]
+        [HttpGet("GetOneUser/{id}", Name = nameof(GetUsers))]
         [ProducesResponseType(200, Type = typeof(User))]
-        [ProducesResponseType(404)]
+        [ProducesResponseType(404, Type = typeof(CustomResponseExamplesNotFound))]
         public async Task<IActionResult> GetUser(string id)
         {
             User? user = await repo.RetrieveAsync(id);
 
             if (user is null)
             {
-                id = id.ToUpper();
-                user = await repo.RetrieveAsync(id);
-
-                if (user is null)
-                {
-                    id = id.ToLower();
-                    user = await repo.RetrieveAsync(id);
-
-                    if (user is null)
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        return Ok(user);
-                    }
-                }
-                else
-                {
-                    return Ok(user);
-                }
+                return NotFound(new CustomResponseExamplesNotFound(StatusCodes.Status404NotFound, "User not found"));
             }
-            else
-            {
-                return Ok(user);
-            }
+            return Ok(user);
         }
 
-        [HttpPost(Name = nameof(GetUser))]
+        [HttpPost("CreateUser", Name = nameof(GetUser))]
         [ProducesResponseType(201, Type = typeof(User))]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
+        [ProducesResponseType(400, Type = typeof(CustomResponseExamplesBadRequest))]
         public async Task<IActionResult> CreateUser([FromBody] User user)
         {
             if (user is null)
             {
-                return BadRequest();
+                return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, "The request body should not be empty"));
             }
+
+            var validationResult = await validator.ValidateAsync(user);
+            if (!validationResult.IsValid)
+            {
+                // берет первую ошибку валидации
+                var query = (from errors in validationResult.Errors
+                             select errors.ErrorMessage)
+                            .First();
+
+                return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, query));
+            }
+
+            // постобработчик при создании записей
+            user.EmptyToNull();
 
             User? addedUser = await repo.CreateAsync(user);
             if (addedUser is null)
             {
-                return BadRequest("Repository failed to create User.");
+                return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, "Repository failed to create User"));
             }
-            else
-            {
-                return CreatedAtRoute(
-                    routeName: nameof(GetUsers),
-                    routeValues: new
-                    {
-                        id = addedUser.UserId.ToLower()
-                    },
-                    value: addedUser);
-            }
+
+            return CreatedAtRoute(
+                routeName: nameof(GetUsers),
+                routeValues: new
+                {
+                    id = addedUser.UserId.ToLower()
+                },
+                value: addedUser);
         }
 
-        // PUT: api/Users/UpdateUser/[id] - полное обновление пользователя
-        [HttpPut]
-        [Route("UpdateUser/{id}")]
-        [ProducesResponseType(204,Type = typeof(User))]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> UpdateUser(string id, [FromBody] User user)
+        // PUT: api/Users/UpdateUser - полное обновление пользователя
+        [HttpPut("UpdateUser")]
+        [ProducesResponseType(200, Type = typeof(CustomResponseExamplesOk))]
+        [ProducesResponseType(400, Type = typeof(CustomResponseExamplesBadRequest))]
+        [ProducesResponseType(404, Type = typeof(CustomResponseExamplesNotFound))]
+        public async Task<IActionResult> UpdateUser([FromBody] User user)
         {
-            if (user is null)
+            if (user is null || user.UserId is null)
             {
-                return BadRequest();
+                return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, "The request body must not be empty, and the id must also match"));
             }
 
-            User? existing = await repo.RetrieveAsync(id);
-
-            if (existing is null) 
+            var validationResult = await validator.ValidateAsync(user);
+            if (!validationResult.IsValid)
             {
-                id = id.ToUpper();
-                user.UserId = user.UserId.ToUpper();
+                var query = (from errors in validationResult.Errors
+                             select errors.ErrorMessage)
+                            .First();
 
-                existing = await repo.RetrieveAsync(id);
-
-                if (existing is null)
-                {
-                    id = id.ToLower();
-                    user.UserId = user.UserId.ToLower();
-
-                    existing = await repo.RetrieveAsync(id);
-
-                    if (existing is null)
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        await repo.UpdateUserAsync(id, user);
-                        return new NoContentResult();
-                    }
-                }
-                else
-                {
-                    await repo.UpdateUserAsync(id, user);
-                    return new NoContentResult();
-                }
+                return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, query));
             }
-            else
+
+            User? existing = await repo.RetrieveAsync(user.UserId);
+
+            if (existing is null)
             {
-                await repo.UpdateUserAsync(id, user);
-                return new NoContentResult();
+                return NotFound(new CustomResponseExamplesNotFound(StatusCodes.Status404NotFound, "User not found"));
             }
+
+            // постобработка на игнорирование пустых параметров при апдейте записи
+            //user.IgnorEmptyParam(existing);
+
+            await repo.UpdateUserAsync(user.UserId, user);
+            return Ok(new CustomResponseExamplesOk(StatusCodes.Status200OK, "success"));
         }
 
         // PUT: api/Users/UpdateProfileUser/[id] - обновление данных профиля пользователя
         [HttpPut]
         [Route("UpdateProfileUser/{id}")]
-        [ProducesResponseType(204, Type = typeof(User))]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
+        [ProducesResponseType(200, Type = typeof(CustomResponseExamplesOk))]
+        [ProducesResponseType(400, Type = typeof(CustomResponseExamplesBadRequest))]
+        [ProducesResponseType(404, Type = typeof(CustomResponseExamplesNotFound))]
         public async Task<IActionResult> UpdateProfileUser(string id, [Required] string firstName, [Required] string surname, string? patronymic,
-        DateTime? birthDate, string? mobilePhone, string? address)
+        [Required] DateTime? birthDate, string? mobilePhone, string? address)
         {
-            if (id is null || firstName is null || surname is null)
+            // ТУТ ПОКА НЕ ВАЛИДИРУЮ ЗАПРОС, Т.К. ВАЛИДАЦИЮ СДЕЛАЛ ТОЛЬКО ПОД САМ ЭКЗЕМПЛЯР USER
+
+            if (id is null || firstName is null || surname is null || birthDate is null)
             {
-                return BadRequest();
+                return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, "userId, firstName, surname and birthdate should not be empty"));
             }
+
 
             User? existing = await repo.RetrieveAsync(id);
 
             if (existing is null)
             {
-                id = id.ToUpper();
-                existing = await repo.RetrieveAsync(id);
-
-                if (existing is null)
-                {
-                    id = id.ToLower();
-                    existing = await repo.RetrieveAsync(id);
-
-                    if (existing is null)
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        await repo.UpdateProfileUserAsync(id, firstName, surname, patronymic, birthDate, mobilePhone, address);
-                        return new NoContentResult();
-                    }
-                }
-                else
-                {
-                    await repo.UpdateProfileUserAsync(id, firstName, surname, patronymic, birthDate, mobilePhone, address);
-                    return new NoContentResult();
-                }
+                return NotFound(new CustomResponseExamplesNotFound(StatusCodes.Status404NotFound, "User not found"));
             }
-            else
-            {
-                await repo.UpdateProfileUserAsync(id, firstName, surname, patronymic, birthDate, mobilePhone, address);
-                return new NoContentResult();
-            }
+
+
+            await repo.UpdateProfileUserAsync(id, firstName, surname, patronymic, birthDate, mobilePhone, address);
+            return Ok(new CustomResponseExamplesOk(StatusCodes.Status200OK, "success"));
         }
 
         // PUT: api/Users/UpdateEmail/[id] - обновление email пользователя
         [HttpPut]
         [Route("UpdateEmail/{id}")]
-        [ProducesResponseType(204, Type = typeof(User))]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
+        [ProducesResponseType(200, Type = typeof(CustomResponseExamplesOk))]
+        [ProducesResponseType(400, Type = typeof(CustomResponseExamplesBadRequest))]
+        [ProducesResponseType(404, Type = typeof(CustomResponseExamplesNotFound))]
         public async Task<IActionResult> UpdateEmail(string id, [Required] string newEmail)
         {
+            // ТУТ ПОКА НЕ ВАЛИДИРУЮ ЗАПРОС, Т.К. ВАЛИДАЦИЮ СДЕЛАЛ ТОЛЬКО ПОД САМ ЭКЗЕМПЛЯР USER
+
             if (id is null || newEmail is null)
             {
-                return BadRequest();
+                return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, "id and email should not be empty"));
             }
 
             User? existing = await repo.RetrieveAsync(id);
 
             if (existing is null)
             {
-                id = id.ToUpper();
-                existing = await repo.RetrieveAsync(id);
-
-                if (existing is null)
-                {
-                    id = id.ToLower();
-                    existing = await repo.RetrieveAsync(id);
-
-                    if (existing is null)
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        await repo.UpdateEmailAsync(id, newEmail);
-                        return new NoContentResult();
-                    }
-                }
-                else
-                {
-                    await repo.UpdateEmailAsync(id, newEmail);
-                    return new NoContentResult();
-                }
+                return NotFound(new CustomResponseExamplesNotFound(StatusCodes.Status404NotFound, "User not found"));
             }
-            else
-            {
-                await repo.UpdateEmailAsync(id, newEmail);
-                return new NoContentResult();
-            }
+
+            await repo.UpdateEmailAsync(id, newEmail);
+            return Ok(new CustomResponseExamplesOk(StatusCodes.Status200OK, "success"));
         }
 
-        // DELETE: api/Users/[id]
-        [HttpDelete("{id}")]
-        [ProducesResponseType(204)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(500)]
+        // DELETE: api/Users/DeletUser/[id]
+        [HttpDelete("DeleteUser/{id}")]
+        [ProducesResponseType(200, Type = typeof(CustomResponseExamplesOk))]
+        [ProducesResponseType(400, Type = typeof(CustomResponseExamplesBadRequest))]
+        [ProducesResponseType(404, Type = typeof(CustomResponseExamplesNotFound))]
         public async Task<IActionResult> DeleteCustomer(string id)
         {
+            if (string.IsNullOrEmpty(id))
+            {
+                return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, "id must not be empty or null"));
+            }
+
             User? existing = await repo.RetrieveAsync(id);
 
             if (existing is null)
             {
-                id = id.ToUpper();
-                existing = await repo.RetrieveAsync(id);
-
-                if (existing is null)
-                {
-                    id = id.ToLower();
-                    existing = await repo.RetrieveAsync(id);
-
-                    if (existing is null)
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        bool? deleted = await repo.DeleteAsync(id);
-                        if (deleted.HasValue && deleted.Value)
-                        {
-                            return new NoContentResult();
-                        }
-                        else
-                        {
-                            return BadRequest($"User {id} was found but failed to delete.");
-                        }
-                    }
-                }
-                else
-                {
-                    bool? deleted = await repo.DeleteAsync(id);
-                    if (deleted.HasValue && deleted.Value)
-                    {
-                        return new NoContentResult();
-                    }
-                    else
-                    {
-                        return BadRequest($"User {id} was found but failed to delete.");
-                    }
-                }
+                return NotFound(new CustomResponseExamplesNotFound(StatusCodes.Status404NotFound, "User not found"));
             }
-            else
+
+            bool? deleted = await repo.DeleteAsync(id);
+            if (deleted.HasValue && deleted.Value)
             {
-                bool? deleted = await repo.DeleteAsync(id);
-                if (deleted.HasValue && deleted.Value)
-                {
-                    return new NoContentResult();
-                }
-                else
-                {
-                    return BadRequest($"User {id} was found but failed to delete.");
-                }
+                return Ok(new CustomResponseExamplesOk(StatusCodes.Status200OK, "success"));
             }
+
+            return BadRequest(new CustomResponseExamplesBadRequest(StatusCodes.Status400BadRequest, $"User {id} was found but failed to delete"));
         }
     }
 }

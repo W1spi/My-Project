@@ -1,24 +1,24 @@
 ﻿@using NLimit.Web.ClassServices
 @model PersonalAccountViewModel
 @{
-    ViewData["Title"] = "Personal Data";
+    ViewData["Title"] = "Персональные данные";
     ViewData["ActivePage"] = ManageNavigationPages.PersonalData;
 }
 
-<h3>@ViewData["Title"]</h3>
+<h3 class="mb-3">@ViewData["Title"]</h3>
 
 <div class="row">
     <div class="col-md-6">
-        <p>Your account contains personal data that you have given us. This page allows you to download or delete that data.</p>
+        <p>Ваша учетная запись содержит предоставленные вами персональные данные. На этой странице вы можете скачать или удалить эти данные.</p>
         <p>
-            <strong>Deleting this data will permanently remove your account, and this cannot be recovered.</strong>
+            <strong>Удаление этих данных приведет к необратимому удалению вашей учетной записи, и восстановить ее будет невозможно.</strong>
         </p>
         <div class="btn-group">
             <form asp-controller="PersonalData" asp-action="DownloadPersData" id="download-data" method="post">
-                <button class="btn btn-info me-2" type="submit">Download</button>
+                <button class="btn btn-info me-2" type="submit">Скачать</button>
             </form>
             <p>
-                <a asp-controller="PersonalData" asp-action="DeletePersData" id="delete" class="btn btn-danger">Delete</a>
+                <a asp-controller="PersonalData" asp-action="DeletePersData" id="delete" class="btn btn-danger">Удалить</a>
             </p>
         </div>
     </div>

@@ -20,7 +20,12 @@ public class EmailService
         using (var client = new SmtpClient())
         {
             //await client.ConnectAsync("smtp.yandex.ru", 465, true); // 25 - без шифрования, 465 - с шифрованием
+<<<<<<< HEAD
             await client.ConnectAsync("smtp.mail.ru", 465, true); // 25 - без шифрования, 465 - с шифрованием
+=======
+            await client.ConnectAsync("smtp.mail.ru", 465, true);
+            //await client.AuthenticateAsync("iv.stepanishchev@yandex.ru", "Verasila090319");
+>>>>>>> istep-repo/develop
             await client.AuthenticateAsync("r.r.53@bk.ru", "UnCK9hUxqLMwm80Urbr7");
             await client.SendAsync(emailMessage);
 

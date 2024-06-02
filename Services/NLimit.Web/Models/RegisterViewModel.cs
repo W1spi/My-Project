@@ -1,40 +1,30 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using Data.NLimit.Common.EntitiesModels.SqlServer;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 
 namespace NLimit.Web.Models;
 
-public class RegisterViewModel
+public class RegisterViewModel : User
 {
-    [Required]
-    [EmailAddress]
-    [Display(Name = "Email")]
-    public string Email { get; set; }
+    [Required(ErrorMessage = "Поле [Дата рождения] является обязательным")]
+    [DataType(DataType.Date)]
+    public DateTime? BirthDate { get; set; }
 
-    [Required]
-    [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+    [Required(ErrorMessage = "Поле [Пароль] является обязательным")]
+    [StringLength(100, ErrorMessage = "Длина поля [Пароль] не должна превышать 100 символов")]
     [DataType(DataType.Password)]
-    [Display(Name = "Password")]
+    [Display(Name = "Пароль")]
+    [Compare("ConfirmPassword", ErrorMessage = "Введенные пароли не совпадают")]
     public string Password { get; set; }
 
+    [Required(ErrorMessage = "Поле [Повторите пароль] является обязательным")]
     [DataType(DataType.Password)]
-    [Display(Name = "Confirm password")]
-    [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+    [Display(Name = "Повторите пароль")]
+    [Compare("Password", ErrorMessage = "Введенные пароли не совпадают")]
     public string ConfirmPassword { get; set; }
 
-    [Required]
-    [MaxLength(20)]
-    [Display(Name = "First name")]
-    public string FirstName { get; set; }
-
-    [Required]
-    [MaxLength(20)]
-    [Display(Name = "Surname")]
-    public string Surname { get; set; }
-
-    [StringLength(20, MinimumLength = 1)]
-    [Display(Name = "Patronymic")]
-    public string? Patronymic { get; set; }
+    public RegisterStatus RegisterStatus { get; set; }
 
     public string? ReturnUrl { get; set; }
     public IList<AuthenticationScheme>? ExternalLogins { get; set; }
@@ -54,3 +44,16 @@ public class RegisterViewModel
     }
 }
 
+public enum RegisterStatus : sbyte
+{
+    Success = 1,
+
+    AlreadyRegistered,
+    IncorrectData,
+    ValidationError,
+
+    InternalServerError,
+    NLimitInternalServerError,
+
+    None
+}

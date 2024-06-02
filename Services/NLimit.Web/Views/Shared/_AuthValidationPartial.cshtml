@@ -1,0 +1,34 @@
+﻿@model LoginViewModel
+
+@if (Model.AuthStatus == AuthStatus.ValidationError)
+{
+    <div class="container w-25 alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
+        Не пройдена валидация, введенные данные некорректны.
+        <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
+        </button>
+    </div>
+}
+@if (Model.AuthStatus == AuthStatus.NotRegistered)
+{
+    <div class="container w-25 alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
+        По указанному Email пользователь не найден.
+        <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
+        </button>
+    </div>
+}
+@if (Model.AuthStatus == AuthStatus.IncorrectData)
+{
+    <div class="container w-25 alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
+        Введен неверный логин или пароль.
+        <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
+        </button>
+    </div>
+}
+@if (Model.AuthStatus == AuthStatus.EmailNotConfirmed)
+{
+    <div class="container w-25 alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
+        У найденного пользователя не подтвержден email.
+        <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
+        </button>
+    </div>
+}

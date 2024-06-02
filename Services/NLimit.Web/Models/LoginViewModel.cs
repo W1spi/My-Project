@@ -5,21 +5,19 @@ using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Policy;
 using System.Web.Mvc;
+using Data.NLimit.Common.EntitiesModels.SqlServer;
+using System.ComponentModel;
 //using System.Web.Mvc;
 
 namespace NLimit.Web.Models;
 
-public class LoginViewModel
+public class LoginViewModel : User
 {
-    [Required]
-    [EmailAddress]
-    public string Email { get; set; }
-
-    [Required]
+    [Required(ErrorMessage = "Поле [Пароль] является обязательным")]
     [DataType(DataType.Password)]
     public string Password { get; set; }
 
-    [Display(Name = "Remember me?")]
+    [Display(Name = "Запомнить меня?")]
     public bool RememberMe { get; set; }
 
     public IList<AuthenticationScheme>? ExternalLogins { get; set; }
@@ -42,5 +40,17 @@ public class LoginViewModel
                 $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
         }
     }
+
+    public AuthStatus AuthStatus { get; set; }
+}
+
+public enum AuthStatus : byte
+{
+    ValidationError,
+    EmailNotConfirmed,
+    IncorrectData,
+    NotRegistered,
+
+    None
 }
 

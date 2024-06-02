@@ -1,6 +1,11 @@
 ﻿using Data.NLimit.Common.DataContext.SqlServer;
+using Data.NLimit.Common.EntitiesModels.SqlServer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using NLimit.Web.Models;
+using System;
 
 namespace NLimit.Web.Controllers
 {
@@ -46,7 +51,7 @@ namespace NLimit.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Works()
+        public async Task<IActionResult> Works(string? userId)
         {
             bool signUser = signInManager.IsSignedIn(User);
 
@@ -55,7 +60,26 @@ namespace NLimit.Web.Controllers
                 return RedirectToAction("Login", "Identity");
             }
 
-            return View();
+            IEnumerable<Work> allWorks = await GetWorks(userId);
+
+            if (!allWorks.IsNullOrEmpty())
+            {
+                AboutWorkViewModel workModel = new()
+                {
+                    WorkIsPresent = true
+                };
+
+                return View(workModel);
+            }
+            else
+            {
+                AboutWorkViewModel workModel = new()
+                {
+                    WorkIsPresent = false
+                };
+
+                return View(workModel);
+            }
         }
 
         [HttpGet]
@@ -95,6 +119,32 @@ namespace NLimit.Web.Controllers
             }
 
             return View();
+        }
+
+        private async Task<IEnumerable<Work>> GetWorks(string? userId)
+        {
+            string uri;
+
+            HttpClient client = clientFactory.CreateClient("NLimit.WebApi");
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                uri = "api/Works/GetAllWorks";
+            }
+            else
+            {
+                uri = $"api/Works/GetInfoAboutWork?id={userId}";
+            }
+
+            HttpRequestMessage request = new(
+                method: HttpMethod.Get,
+                requestUri: uri);
+
+            HttpResponseMessage response = await client.SendAsync(request);
+
+            IEnumerable<Work>? works = await response.Content.ReadFromJsonAsync<IEnumerable<Work>>();
+
+            return works;
         }
     }
 }
