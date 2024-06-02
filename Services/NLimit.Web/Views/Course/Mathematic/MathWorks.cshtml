@@ -10,9 +10,15 @@
     <partial name="_CourseNavigation" />
 </div>
 
-<h1 class="page-header">Задания</h1>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="page-header text-center">Задания</h1>
+        </div>
+    </div>
+</div>
 
-@if (Model.WorkId is not null)
+@if (Model.WorkIsPresent.HasValue && Model.WorkIsPresent.Value)
 {
     <div class="col-md-12">
         <div>
@@ -28,16 +34,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
+
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
+}
+else
+{
+    <h1>Нет заданий</h1>
 }

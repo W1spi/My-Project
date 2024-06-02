@@ -1,0 +1,51 @@
+﻿@model RegisterViewModel
+
+@if (Model.RegisterStatus == RegisterStatus.Success)
+{
+    <div class="container w-25 alert alert-success alert-dismissible fade show d-flex align-items-center" role="alert">
+        На указанный email отправлено письмо с подтверждением. Для завершения регистрации
+        необходимо перейти по ссылке, указанной в письме.
+        <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
+        </button>
+    </div>
+}
+@if (Model.RegisterStatus == RegisterStatus.AlreadyRegistered)
+{
+    <div class="container w-25 alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
+        Пользователь с таким Email уже зарегистрирован.
+        <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
+        </button>
+    </div>
+}
+@if (Model.RegisterStatus == RegisterStatus.IncorrectData)
+{
+    <div class="container w-25 alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
+        Введены некорректные данные. Проверьте корректность заполнения полей и повторите попытку.
+        <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
+        </button>
+    </div>
+}
+@if (Model.RegisterStatus == RegisterStatus.ValidationError)
+{
+    <div class="container w-25 alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
+        Произошла ошибка валидации введенных данных. Проверьте корректность заполнения полей и повторите попытку.
+        <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
+        </button>
+    </div>
+}
+@if (Model.RegisterStatus == RegisterStatus.InternalServerError)
+{
+    <div class="container w-25 alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
+        Внутренняя ошибка сервера (не удалось создать клиента). Повторите попытку позже.
+        <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
+        </button>
+    </div>
+}
+@if (Model.RegisterStatus == RegisterStatus.NLimitInternalServerError)
+{
+    <div class="container w-25 alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
+        Внутренняя ошибка сервера (сервису не удалось создать клиента). Повторите попытку позже.
+        <button type="button" class="btn-close align-bott" data-bs-dismiss="alert" aria-label="Close">
+        </button>
+    </div>
+}

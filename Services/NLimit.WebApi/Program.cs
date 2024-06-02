@@ -1,8 +1,17 @@
-using Data.NLimit.Common.DataContext.SqlServer;
 using NLimit.Common.DataContext.SqlServer;
 using NLimit.WebApi.Repositoires.Users;
 using NLimit.WebApi.Repositoires.Works;
 using Swashbuckle.AspNetCore.SwaggerUI;
+using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using NLimit.WebApi.Services.UserAuthentication;
+using NLimit.WebApi.Services.Middleware;
+using Microsoft.IdentityModel.Logging;
+using FluentValidation;
+using NLimit.WebApi.Services.Validation;
+using Data.NLimit.Common.EntitiesModels.SqlServer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +19,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors();
 builder.Services.AddNLimitContext();
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    //options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+
+}).ConfigureApiBehaviorOptions(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -20,10 +36,64 @@ builder.Services.AddSwaggerGen(c =>
         Title = "NLimit Service API",
         Version = "v1"
     });
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+    {
+        Name = "Authorization",
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new List<string>()
+        }
+    });
 });
+
+builder.Services.AddAuthentication(option =>
+{
+    option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true, // генерирует токен
+        ValidateAudience = true, // провер€ет, авторизован ли пользователь дл€ получени€ токена
+        ValidateIssuerSigningKey = true, // провер€ет, не истек ли токен и валиден ли ключ подписани€ эмитента
+
+        ValidateLifetime = false,
+
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])) //Configuration["JwtToken:SecretKey"]
+    };
+});
+
+builder.Services.AddTransient<IUserService, UserService>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IWorkRepository, WorkRepository>();
+
+// кастомна€ валидаци€
+builder.Services.AddScoped<IValidator<User>, UserValidator>();
+builder.Services.AddScoped<IValidator<Work>, WorkValidator>();
 
 var app = builder.Build();
 
@@ -40,9 +110,17 @@ if (app.Environment.IsDevelopment())
             SubmitMethod.Put, SubmitMethod.Delete
         });
     });
+
+    IdentityModelEventSource.ShowPII = true;
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors(configurePolicy: options =>
+{
+    options.WithMethods("GET", "POST", "PUT", "DELETE");
+    options.WithOrigins("https://localhost:7027/");
+});
 
 app.UseAuthorization();
 
@@ -50,12 +128,7 @@ app.UseAuthorization();
 // ƒолжен вызыватьс€ дл€ Api сервисов
 app.MapControllers();
 
+app.UseMiddleware<JWTMiddleware>();
 //app.UseMiddleware<SecurityHeaders>();
-
-app.UseCors(configurePolicy: options =>
-{
-    options.WithMethods("GET", "POST", "PUT", "DELETE");
-    options.WithOrigins("https://localhost:7027/");
-});
 
 app.Run();

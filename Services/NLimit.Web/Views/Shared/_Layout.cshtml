@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/NLimit.Web.styles.css" asp-append-version="true" />
 </head>
-<body>
+<body class="bg-light">
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
@@ -22,13 +22,8 @@
                     <ul class="navbar-nav flex-grow-1">
 
                         <li class="nav-item input-group-text mx-2">
-                            <a class="icon-link link-info bi bi-house-fill text-dark text-decoration-none" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="icon-link link-info bi bi-house-fill text-dark text-decoration-none" asp-controller="Home" asp-action="Index">Домой</a>
                         </li>
-
-                        <!--<li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li> -->
-
                     </ul>
                     <partial name="_CoursesPartial" />
                     <partial name="_LoginPartial" />
@@ -36,17 +31,17 @@
             </div>
         </nav>
     </header>
-    <div class="container-fluid">
+    <div class="container-fluid bg-light bg-opacity-25">
         <div class="row">
             @RenderBody()
         </div>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <!-- <footer class="border-top footer text-muted bg-light bg-opacity-25">
         <div class="container">
             &copy; 2023 - NLimit.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
-    </footer>
+    </footer> -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
