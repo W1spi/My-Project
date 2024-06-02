@@ -43,7 +43,7 @@ builder.Services.AddHttpClient(
     name: "NLimit.WebApi",
     configureClient: options =>
     {
-        options.BaseAddress = new Uri("https://localhost:7027/");
+        options.BaseAddress = new Uri("https://localhost:7031/");
         options.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json", 1.0));
     });
 
