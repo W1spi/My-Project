@@ -17,7 +17,7 @@ namespace NLimit.WebApi.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [AllowAnonymous]
-//[Authorize]
+[Authorize]
 public class WorksController : ControllerBase
 {
     private readonly IWorkRepository repo;
