@@ -3,16 +3,162 @@
 @{
     ViewData["Title"] = "AboutCourse";
     ViewData["ActivePage"] = ManageNavigationPages.AboutCourse;
+    ViewData["ContainerClass"] = "bg-transparent"; // Параметр для фона
 }
+
+<style>
+    body {
+        background: url('https://w.forfun.com/fetch/66/6688c4381aca813ec24bb6dd0db27f08.jpeg') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    .content-wrapper {
+        background-color: rgba(0, 0, 0, 0.7);
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+        .content-wrapper .inner-content {
+            background-color: rgba(255, 255, 255, 0.5);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+    .carousel-inner img {
+        height: 300px;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+
+    .page-header {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+
+    .list-group-item {
+        font-size: 1.2rem;
+    }
+
+    blockquote {
+        background: #f9f9f9;
+        border-left: 10px solid #ccc;
+        margin: 1.5em 10px;
+        padding: 0.5em 10px;
+        quotes: "\201C""\201D""\2018""\2019";
+        border-radius: 10px;
+    }
+
+        blockquote:before {
+            color: #ccc;
+            content: open-quote;
+            font-size: 4em;
+            line-height: 0.1em;
+            margin-right: 0.25em;
+            vertical-align: -0.4em;
+        }
+
+        blockquote p {
+            display: inline;
+        }
+
+    .blockquote-footer {
+        display: block;
+        margin-top: 0.5em;
+        font-size: 0.875em;
+        color: #6c757d;
+    }
+
+    .menu-button-container {
+        background-color: rgba(255, 255, 255, 0.3);
+        padding: 10px;
+        border-radius: 10px;
+    }
+</style>
 
 <div>
     <partial name="_CourseNavigation" />
 </div>
 
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <h1 class="page-header text-center">О курсе</h1>
+<div class="container mt-4 content-wrapper">
+    <div class="inner-content">
+        <div class="row mb-4">
+            <div class="col-md-12 text-center">
+                <h1 class="page-header">О курсе Программирование</h1>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <img src="https://avatars.dzeninfra.ru/get-zen_doc/3437146/pub_5f18572a22cf3129b0cf1d37_5f1859557b1b7339f288ecd2/scale_1200" class="img-fluid rounded shadow" alt="Programming Image">
+            </div>
+            <div class="col-md-8">
+                <p>
+                    Курс "Программирование" предназначен для всех, кто хочет научиться разрабатывать современные программные приложения.
+                    На этом курсе вы изучите основные концепции программирования, структуры данных, алгоритмы и многое другое.
+                </p>
+                <p>
+                    Мы предлагаем курсы по различным языкам программирования, включая Python, Java, C#, C++, JavaScript и многие другие.
+                    Наши преподаватели помогут вам понять сложные концепции и научат применять их на практике.
+                </p>
+                <p>
+                    Присоединяйтесь к нашему курсу и начните свое увлекательное путешествие в мир программирования!
+                </p>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div id="programmingCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <img src="https://img.goodfon.ru/original/1440x900/7/2c/kod-kodirovanie-programmirovanie-chernyi-fon-minimalizm.jpg" class="d-block w-100" alt="Programming Image 1">
+                        </div>
+                        <div class="carousel-item">
+                            <img src="https://i.pinimg.com/originals/10/e6/06/10e6068f6ccd210e2c041d47f0af6635.png" class="d-block w-100" alt="Programming Image 2">
+                        </div>
+                        <div class="carousel-item">
+                            <img src="https://celes.club/uploads/posts/2022-06/1654711289_57-celes-club-p-oboi-koding-krasivie-69.png" class="d-block w-100" alt="Programming Image 3">
+                        </div>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#programmingCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#programmingCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <h2 class="text-center">Почему стоит выбрать наш курс?</h2>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Погружение в практическое программирование с первого дня</li>
+                    <li class="list-group-item">Реальные проекты, помогающие приобрести ценный опыт</li>
+                    <li class="list-group-item">Регулярные код-ревью и обратная связь от преподавателей</li>
+                    <li class="list-group-item">Доступ к современным технологиям и инструментам разработки</li>
+                    <li class="list-group-item">Поддержка сообщества и возможность обмена опытом с другими студентами</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <h2 class="text-center">Отзывы наших студентов</h2>
+                <blockquote class="blockquote text-center">
+                    <p class="mb-0">"Курс по программированию помог мне освоить новый язык и начать свою карьеру в IT. Преподаватели всегда готовы помочь и объяснить материал."</p>
+                    <footer class="blockquote-footer">Мария, студентка</footer>
+                </blockquote>
+                <blockquote class="blockquote text-center">
+                    <p class="mb-0">"Благодаря этому курсу я смог создать свои первые проекты и получить работу мечты."</p>
+                    <footer class="blockquote-footer">Алексей, студент</footer>
+                </blockquote>
+            </div>
         </div>
     </div>
 </div>
